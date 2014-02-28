@@ -1,0 +1,15 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+  xmlns:g="urn:import:com.google.gwt.user.client.ui">
+  <ui:image field="gameboard" src="images/board.gif"  />
+  <g:HorizontalPanel>
+    <g:Grid ui:field="gameGrid" />   
+    <g:VerticalPanel>
+      <g:HorizontalPanel>
+        <g:Button ui:field="deployBtn" text="Finish Deploy"/>
+        <g:Button ui:field="moveBtn" text="Confirm Move"/>
+      </g:HorizontalPanel>
+      <g:Grid ui:field="deployGrid" />
+    </g:VerticalPanel>
+  </g:HorizontalPanel>
+</ui:UiBinder> 

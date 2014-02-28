@@ -36,9 +36,9 @@ public class LuzhanqiEntryPoint implements EntryPoint {
       }
     };
     container = new IteratingPlayerContainer(game, 2);
-//    LuzhanqiGraphics luzhanqiGraphics = new LuzhanqiGraphics();
-//    luzhanqiPresenter =
-//        new LuzhanqiPresenter(luzhanqiGraphics, container);
+    LuzhanqiGraphics luzhanqiGraphics = new LuzhanqiGraphics();
+    luzhanqiPresenter =
+        new LuzhanqiPresenter(luzhanqiGraphics, container);
     final ListBox playerSelect = new ListBox();
     playerSelect.addItem("WhitePlayer");
     playerSelect.addItem("BlackPlayer");
@@ -53,10 +53,10 @@ public class LuzhanqiEntryPoint implements EntryPoint {
       }
     });
     FlowPanel flowPanel = new FlowPanel();
-//    flowPanel.add(luzhanqiGraphics);
+    flowPanel.add(luzhanqiGraphics);
     flowPanel.add(playerSelect);
     RootPanel.get("mainDiv").add(flowPanel);
-//    container.sendGameReady();
-//    container.updateUi(container.getPlayerIds().get(0));
+    container.sendGameReady();
+    container.updateUi(container.getPlayerIds().get(0));
   }
 }

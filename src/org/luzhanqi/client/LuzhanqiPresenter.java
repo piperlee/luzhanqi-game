@@ -29,11 +29,11 @@ public class LuzhanqiPresenter {
    * NORMAL_MOVE: during normal move.
    * FIRST_MOVE: player b does the first move.
    */
-  enum LuzhanqiMessage {
+  public enum LuzhanqiMessage {
     IS_DEPLOY, NORMAL_MOVE, FIRST_MOVE
   }
 
-  interface View {
+  public interface View {
     /**
      * Sets the presenter. The viewer will call certain methods on the presenter, e.g.,
      * when a piece is selected ({@link #pieceDeploy}),
@@ -168,6 +168,10 @@ public class LuzhanqiPresenter {
       }
     }   
   }
+  
+  public Turn getTurn(){
+    return myTurn.get();
+  }
 
   // to check if the game state is an end game state
   private boolean endGame(LuzhanqiState state){
@@ -275,7 +279,7 @@ public class LuzhanqiPresenter {
    * The view can only call this method if the presenter called 
    * {@link View#deployNextPiece(Map)}.
    */  
-  void pieceDeploy(Piece piece, Slot slot){
+  public void pieceDeploy(Piece piece, Slot slot){
     check(isSTurn());
     check(validDeployPosition(piece,slot));
     if(deployMap.containsKey(piece)){
@@ -304,7 +308,7 @@ public class LuzhanqiPresenter {
    * {@link View#deployNextPiece(Map)} 
    * and 25 pieces were all deployed by calling {@link #pieceDeploy(Piece, Slot)}.
    */
-  void finishedDeployingPieces() {
+  public void finishedDeployingPieces() {
     check(isSTurn() && deployMap.size()==25);
     apiBoard = getApiBoard(deployMap);
     container.sendMakeMove(luzhanqiLogic.deployPiecesMove(
@@ -316,7 +320,7 @@ public class LuzhanqiPresenter {
    * This method can be called if the presenter passed
    * LuzhanqiMessage.FIRST_MOVE in {@link View#setPlayerState}.
    */
-  void firstMove() {
+  public void firstMove() {
     apiBoard = getApiBoard(luzhanqiState.getBoard());
     container.sendMakeMove(luzhanqiLogic.firstMove(luzhanqiState,apiBoard));
   }
@@ -325,7 +329,7 @@ public class LuzhanqiPresenter {
    * Selects fromSlot and toSlot in a normal move.
    * The view can only call this method if the presenter called {@link View#nextFromTo(List)}.
    */
-  void moveSelected(Slot from, Slot to) {
+  public void moveSelected(Slot from, Slot to) {
     check(isMyTurn() && !from.emptySlot() && isMyPiece(from.getPiece()) 
         && (to.emptySlot() || !isMyPiece(to.getPiece())));
     if (fromTo.isEmpty()){
@@ -346,7 +350,7 @@ public class LuzhanqiPresenter {
    * {@link View#nextFromTo(List)} 
    * and there is one valid from-to pair existing by calling {@link #moveSelected(Slot, Slot)}
    */
-  void finishedNormalMove() {
+  public void finishedNormalMove() {
     check(isMyTurn() && fromTo.size()==2);        
     apiBoard = getApiBoard(luzhanqiState.getBoard());
     container.sendMakeMove(luzhanqiLogic.normalMove(
