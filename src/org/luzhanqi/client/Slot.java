@@ -146,17 +146,22 @@ public class Slot {
 
   public Optional<Piece> calcPiece(int pieceKey){
     if (pieceKey == -1) return Optional.<Piece>absent();
-    return Optional.<Piece>of(new Piece(pieceKey));
+    return Optional.<Piece>of(new Piece(pieceKey,this.key));
   }
   
   public void setPiece(Piece p){
     this.curPiece = Optional.<Piece>of(p); 
     this.isEmpty = false;
+    p.setSlot(this.key);
   }
   
   public void setEmpty(){
+    if(this.curPiece.get().getKey()==this.key)
+      this.curPiece.get().setSlot(-1);
+    //this.curPiece = Optional.<Piece>of(null);
     this.curPiece = null;
     this.isEmpty = true;
+    
   }
   
   public boolean isAdj(int key2){

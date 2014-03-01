@@ -19,6 +19,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -202,7 +203,7 @@ public class LuzhanqiPresenterTest {
     verify(mockView).setPlayerState(25, 0, 
         luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
-    verify(mockView).deployNextPiece(ImmutableMap.<Piece,Slot>of());
+    verify(mockView).deployNextPiece(ImmutableMap.<Piece,Optional<Slot>>of());
   }
   
   @Test
@@ -211,7 +212,7 @@ public class LuzhanqiPresenterTest {
     verify(mockView).setPlayerState(25, 0, 
         luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
-    verify(mockView).deployNextPiece(ImmutableMap.<Piece,Slot>of());
+    verify(mockView).deployNextPiece(ImmutableMap.<Piece,Optional<Slot>>of());
   }
 
   @Test
@@ -231,10 +232,10 @@ public class LuzhanqiPresenterTest {
     verify(mockView).setPlayerState(25, 0, 
         luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
-    verify(mockView).deployNextPiece(ImmutableMap.<Piece,Slot>of());
-    Map<Piece,Slot> deployMap = Maps.newHashMap();
-    deployMap.put(allPieces.get(24),  allSlots.get(1));
-    verify(mockView).deployNextPiece(deployMap);
+    verify(mockView).deployNextPiece(ImmutableMap.<Piece,Optional<Slot>>of());
+    Map<Piece,Optional<Slot>> lastDeploy = Maps.newHashMap();
+    lastDeploy.put(allPieces.get(24),  Optional.<Slot>of(allSlots.get(1)));
+    verify(mockView).deployNextPiece(lastDeploy);
     
   }
   
@@ -248,12 +249,13 @@ public class LuzhanqiPresenterTest {
     verify(mockView).setPlayerState(25, 0, 
         luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
-    verify(mockView).deployNextPiece(ImmutableMap.<Piece,Slot>of());
-    Map<Piece,Slot> deployMap = Maps.newHashMap();
-    deployMap.put(allPieces.get(24),  allSlots.get(1));
-    verify(mockView).deployNextPiece(deployMap);
-    deployMap.put(allPieces.get(24),  allSlots.get(3));
-    verify(mockView).deployNextPiece(deployMap);
+    verify(mockView).deployNextPiece(ImmutableMap.<Piece,Optional<Slot>>of());
+    Map<Piece,Optional<Slot>> lastDeploy = Maps.newHashMap();
+    lastDeploy.put(allPieces.get(24),  Optional.<Slot>of(allSlots.get(1)));
+    verify(mockView).deployNextPiece(lastDeploy);
+    lastDeploy.clear();
+    lastDeploy.put(allPieces.get(24), Optional.<Slot>of( allSlots.get(3)));
+    verify(mockView).deployNextPiece(lastDeploy);
   }
   
   @Test
@@ -265,10 +267,10 @@ public class LuzhanqiPresenterTest {
     verify(mockView).setPlayerState(25, 0, 
         luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
-    verify(mockView).deployNextPiece(ImmutableMap.<Piece,Slot>of());
-    Map<Piece,Slot> deployMap = Maps.newHashMap();
-    deployMap.put(allPieces.get(33),  allSlots.get(45));
-    verify(mockView).deployNextPiece(deployMap);
+    verify(mockView).deployNextPiece(ImmutableMap.<Piece,Optional<Slot>>of());
+    Map<Piece,Optional<Slot>> lastDeploy = Maps.newHashMap();
+    lastDeploy.put(allPieces.get(33),  Optional.<Slot>of(allSlots.get(45)));
+    verify(mockView).deployNextPiece(lastDeploy);
     
   }
   
@@ -282,12 +284,13 @@ public class LuzhanqiPresenterTest {
     verify(mockView).setPlayerState(25, 0, 
         luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
-    verify(mockView).deployNextPiece(ImmutableMap.<Piece,Slot>of());
-    Map<Piece,Slot> deployMap = Maps.newHashMap();
-    deployMap.put(allPieces.get(33),  allSlots.get(45));
-    verify(mockView).deployNextPiece(deployMap);
-    deployMap.put(allPieces.get(47),  allSlots.get(51));
-    verify(mockView).deployNextPiece(deployMap);
+    verify(mockView).deployNextPiece(ImmutableMap.<Piece,Optional<Slot>>of());
+    Map<Piece,Optional<Slot>> lastDeploy = Maps.newHashMap();
+    lastDeploy.put(allPieces.get(33),  Optional.<Slot>of(allSlots.get(45)));
+    verify(mockView).deployNextPiece(lastDeploy);
+    lastDeploy.clear();
+    lastDeploy.put(allPieces.get(47),  Optional.<Slot>of(allSlots.get(51)));
+    verify(mockView).deployNextPiece(lastDeploy);
   }
   
   @Test
@@ -314,12 +317,14 @@ public class LuzhanqiPresenterTest {
     verify(mockView).setPlayerState(25, 0, 
         luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
-    verify(mockView).deployNextPiece(ImmutableMap.<Piece,Slot>of());
+    verify(mockView).deployNextPiece(ImmutableMap.<Piece,Optional<Slot>>of());
     Map<Piece,Slot> deployMap = Maps.newHashMap();
     for(int i = 0; i < 30; i++){
       if(boardDeploy.get(i) != -1){
         deployMap.put(allPieces.get(boardDeploy.get(i)),  allSlots.get(i));
-        verify(mockView).deployNextPiece(deployMap);
+        Map<Piece,Optional<Slot>> lastDeploy = Maps.newHashMap();
+        lastDeploy.put(allPieces.get(boardDeploy.get(i)),  Optional.<Slot>of(allSlots.get(i)));
+        verify(mockView).deployNextPiece(lastDeploy);
       }
     }
     verify(mockContainer).sendMakeMove(luzhanqiLogic.deployPiecesMove(
@@ -343,12 +348,14 @@ public class LuzhanqiPresenterTest {
     verify(mockView).setPlayerState(25, 0, 
         luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
-    verify(mockView).deployNextPiece(ImmutableMap.<Piece,Slot>of());
+    verify(mockView).deployNextPiece(ImmutableMap.<Piece,Optional<Slot>>of());
     Map<Piece,Slot> deployMap = Maps.newHashMap();
     for(int i = 30; i < 60; i++){
       if(boardDeploy.get(i) != -1){
         deployMap.put(allPieces.get(boardDeploy.get(i)),  allSlots.get(i));
-        verify(mockView).deployNextPiece(deployMap);
+        Map<Piece,Optional<Slot>> lastDeploy = Maps.newHashMap();
+        lastDeploy.put(allPieces.get(boardDeploy.get(i)),  Optional.<Slot>of(allSlots.get(i)));
+        verify(mockView).deployNextPiece(lastDeploy);
       }
     }
     verify(mockContainer).sendMakeMove(luzhanqiLogic.deployPiecesMove(

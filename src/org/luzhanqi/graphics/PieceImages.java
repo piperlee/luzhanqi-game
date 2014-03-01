@@ -19,15 +19,82 @@ import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 
 public interface PieceImages extends ClientBundle {
+  @Source("images/board.gif")
+  ImageResource board();
+  
   @Source("images/pieces/empty.gif")
   ImageResource empty();
   
-  //TODO: add all images
+  @Source("images/pieces/w9.png")
+  ImageResource w9();
   
   @Source("images/pieces/w8.png")
   ImageResource w8();
   
+  @Source("images/pieces/w7.png")
+  ImageResource w7();
+  
+  @Source("images/pieces/w6.png")
+  ImageResource w6();
+  
+  @Source("images/pieces/w5.png")
+  ImageResource w5();
+  
+  @Source("images/pieces/w4.png")
+  ImageResource w4();
+  
+  @Source("images/pieces/w3.png")
+  ImageResource w3();
+  
+  @Source("images/pieces/w2.png")
+  ImageResource w2();
+  
+  @Source("images/pieces/w1.png")
+  ImageResource w1();
+  
+  @Source("images/pieces/wb.png")
+  ImageResource wb();
+  
+  @Source("images/pieces/wl.png")
+  ImageResource wl();
+  
+  @Source("images/pieces/wf.png")
+  ImageResource wf();
+   
+  @Source("images/pieces/b9.png")
+  ImageResource b9();
+  
   @Source("images/pieces/b8.png")
   ImageResource b8();
+  
+  @Source("images/pieces/b7.png")
+  ImageResource b7();
+  
+  @Source("images/pieces/b6.png")
+  ImageResource b6();
+  
+  @Source("images/pieces/b5.png")
+  ImageResource b5();
+  
+  @Source("images/pieces/b4.png")
+  ImageResource b4();
+  
+  @Source("images/pieces/b3.png")
+  ImageResource b3();
+  
+  @Source("images/pieces/b2.png")
+  ImageResource b2();
+  
+  @Source("images/pieces/b1.png")
+  ImageResource b1();
+  
+  @Source("images/pieces/bb.png")
+  ImageResource bb();
+  
+  @Source("images/pieces/bl.png")
+  ImageResource bl();
+  
+  @Source("images/pieces/bf.png")
+  ImageResource bf();
   
 }

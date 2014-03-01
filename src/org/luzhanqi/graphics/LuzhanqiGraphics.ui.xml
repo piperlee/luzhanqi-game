@@ -1,15 +1,45 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
   xmlns:g="urn:import:com.google.gwt.user.client.ui">
-  <ui:image field="gameboard" src="images/board.gif"  />
+  <ui:image field="gameboard" src="images/board.gif" />
+    <ui:style field="css" type="com.google.gwt.resources.client.CssResource">
+    td img {
+	     display: block
+    }
+    .grid{
+        margin-top:  44px;
+        margin-left: 22px;
+    }
+    @sprite .back{
+        margin-top: 0px;
+        margin-left: 0px;
+        gwt-image: "gameboard";
+    }
+    .gameCell-6 {
+	     margin-top:10px;
+	     width: 37px;
+       height: 30px;
+    }
+   .gameCell-normal {
+	    width: 37px;
+      height: 30px;      
+    }
+
+  </ui:style>
   <g:HorizontalPanel>
-    <g:Grid ui:field="gameGrid" />   
+    <g:HTMLPanel>
+      <div class="{css.back}">
+      <g:Grid ui:field="gameGrid" styleName = "{css.grid}"/>
+      </div>
+    </g:HTMLPanel>  
     <g:VerticalPanel>
+      <g:HorizontalPanel width="300px" height="380px"/>
       <g:HorizontalPanel>
         <g:Button ui:field="deployBtn" text="Finish Deploy"/>
         <g:Button ui:field="moveBtn" text="Confirm Move"/>
       </g:HorizontalPanel>
       <g:Grid ui:field="deployGrid" />
     </g:VerticalPanel>
-  </g:HorizontalPanel>
+   </g:HorizontalPanel>
+  
 </ui:UiBinder> 

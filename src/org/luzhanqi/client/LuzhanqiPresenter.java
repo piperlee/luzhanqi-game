@@ -72,8 +72,8 @@ public class LuzhanqiPresenter {
      * if a user select a piece which is already in the map, it will update the map with 
      * the new slot position(if it is empty), otherwise ignore.
      */
-    void deployNextPiece(Map<Piece,Slot> deployMap);
-    
+    //void deployNextPiece(Map<Piece,Slot> deployMap);
+    void deployNextPiece(Map<Piece,Optional<Slot>> lastDeploy);
 
     /**
      * Asks the player to choose the normal move or finish his selection.
@@ -94,6 +94,7 @@ public class LuzhanqiPresenter {
   private List<Integer> apiBoard;
   private List<Slot> fromTo;
   private HashMap<Piece,Slot> deployMap; 
+  private HashMap<Piece,Optional<Slot>> lastDeploy;
   private List<Integer> playerIds;
   private int yourPlayerId;
     
@@ -123,11 +124,13 @@ public class LuzhanqiPresenter {
     Turn turnOfColor = null;
     for (Operation operation : updateUI.getLastMove()) {
       if (operation instanceof SetTurn) {
-        turnOfColor = Turn.values()[playerIds.indexOf(((SetTurn) operation).getPlayerId())];
+        int pId = ((SetTurn) operation).getPlayerId();
+        turnOfColor = pId==1 ? Turn.S : Turn.values()[playerIds.indexOf(pId)];
       }
     }
     deployMap = new HashMap<Piece,Slot>();
     fromTo = new ArrayList<Slot>();
+    lastDeploy = new HashMap<Piece,Optional<Slot>>();
     luzhanqiState = 
         luzhanqiLogic.gameApiStateToLuzhanqiState(updateUI.getState(), turnOfColor, playerIds);
     //apiBoard = getApiBoard(luzhanqiState.getBoard());
@@ -283,19 +286,26 @@ public class LuzhanqiPresenter {
     check(isSTurn());
     check(validDeployPosition(piece,slot));
     if(deployMap.containsKey(piece)){
+      //double click: put back to deploy grid
       if(deployMap.get(piece).equals(slot)){
         slot.setEmpty();
+        lastDeploy.clear();
+        lastDeploy.put(piece, Optional.<Slot>fromNullable(null));
         deployMap.remove(piece);
       }else{
         if(!deployMap.containsValue(slot)){
           deployMap.get(piece).setEmpty();
           slot.setPiece(piece);
+          lastDeploy.clear();
+          lastDeploy.put(piece, Optional.<Slot>of(slot));
           deployMap.put(piece, slot);
         }
       }
-    }else{
+    }else{ //new to game grid
       if(!deployMap.containsValue(slot)){
         slot.setPiece(piece);
+        lastDeploy.clear();
+        lastDeploy.put(piece, Optional.<Slot>of(slot));
         deployMap.put(piece, slot);
       }
     }
@@ -359,7 +369,8 @@ public class LuzhanqiPresenter {
   }
 
   private void deployNextPiece(){
-    view.deployNextPiece(ImmutableMap.copyOf(deployMap));
+    //view.deployNextPiece(ImmutableMap.copyOf(deployMap));
+    view.deployNextPiece(ImmutableMap.copyOf(lastDeploy));
   }
 
   private void nextFromTo(){

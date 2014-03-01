@@ -47,35 +47,35 @@ public class PieceImageSupplier {
   public ImageResource getPieceImage(Piece piece) {
     if(piece.getKey()<25){
       switch (piece.getFace()) {
-        case FIELDMARSHAL: return pieceImages.w8();
+        case FIELDMARSHAL: return pieceImages.w9();
         case GENERAL: return pieceImages.w8();
-        case MAJORGENERAL: return pieceImages.w8();
-        case BRIGADIERGENERAL: return pieceImages.w8();
-        case COLONEL: return pieceImages.w8();
-        case MAJOR: return pieceImages.w8();
-        case CAPTAIN: return pieceImages.w8();
-        case LIEUTENANT: return pieceImages.w8();
-        case ENGINEER: return pieceImages.w8();
-        case BOMB: return pieceImages.w8();
-        case LANDMINE: return pieceImages.w8();
-        case FLAG: return pieceImages.w8();
+        case MAJORGENERAL: return pieceImages.w7();
+        case BRIGADIERGENERAL: return pieceImages.w6();
+        case COLONEL: return pieceImages.w5();
+        case MAJOR: return pieceImages.w4();
+        case CAPTAIN: return pieceImages.w3();
+        case LIEUTENANT: return pieceImages.w2();
+        case ENGINEER: return pieceImages.w1();
+        case BOMB: return pieceImages.wb();
+        case LANDMINE: return pieceImages.wl();
+        case FLAG: return pieceImages.wf();
         default:
           throw new RuntimeException("Forgot type=" + piece.getFace());
       }
     }else{
       switch (piece.getFace()) {
-        case FIELDMARSHAL: return pieceImages.b8();
+        case FIELDMARSHAL: return pieceImages.b9();
         case GENERAL: return pieceImages.b8();
-        case MAJORGENERAL: return pieceImages.b8();
-        case BRIGADIERGENERAL: return pieceImages.b8();
-        case COLONEL: return pieceImages.b8();
-        case MAJOR: return pieceImages.b8();
-        case CAPTAIN: return pieceImages.b8();
-        case LIEUTENANT: return pieceImages.b8();
-        case ENGINEER: return pieceImages.b8();
-        case BOMB: return pieceImages.b8();
-        case LANDMINE: return pieceImages.b8();
-        case FLAG: return pieceImages.b8();
+        case MAJORGENERAL: return pieceImages.b7();
+        case BRIGADIERGENERAL: return pieceImages.b6();
+        case COLONEL: return pieceImages.b5();
+        case MAJOR: return pieceImages.b4();
+        case CAPTAIN: return pieceImages.b3();
+        case LIEUTENANT: return pieceImages.b2();
+        case ENGINEER: return pieceImages.b1();
+        case BOMB: return pieceImages.bb();
+        case LANDMINE: return pieceImages.bl();
+        case FLAG: return pieceImages.bf();
         default:
           throw new RuntimeException("Forgot type=" + piece.getFace());
       }

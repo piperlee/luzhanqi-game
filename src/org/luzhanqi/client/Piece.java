@@ -24,12 +24,22 @@ public class Piece {
   private int order;
   private PieceType face;
   private Turn player;
+  private int slot;
+  
+  public Piece(int k, int slotKey){
+    this.key = k;    
+    this.face = calcFace(k);
+    this.order = this.face.getValue();
+    this.player = (this.key < 25)?Turn.W:Turn.B;
+    this.slot = slotKey;
+  }
   
   public Piece(int k){
     this.key = k;    
     this.face = calcFace(k);
     this.order = this.face.getValue();
     this.player = (this.key < 25)?Turn.W:Turn.B;
+    this.slot = -1;
   }
   
   public PieceType calcFace(int k){
@@ -77,8 +87,16 @@ public class Piece {
     return this.player;
   }
   
-  public void setKey(int k){
-    this.key = k;
+  public int getSlot(){
+    return this.slot;   
+  }
+  
+//  public void setKey(int k){
+//    this.key = k;
+//  }
+  
+  public void setSlot(int slotKey){
+    this.slot = slotKey;
   }
   
   public void setOrder(int o){

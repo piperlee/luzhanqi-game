@@ -18,6 +18,10 @@ public final class PieceImage extends Equality {
   }
 
   public static class Factory {
+    public static PieceImage getEmpty() {
+      return new PieceImage(PieceImageKind.EMPTY, null, null);
+    }
+    
     public static PieceImage getEmpty(Slot slot) {
       return new PieceImage(PieceImageKind.EMPTY, null, slot);
     }
