@@ -62,6 +62,9 @@ public class LuzhanqiPresenterTest {
   private static final String D = "D"; // Discard pile
   private static final String BOARD = "board"; // game board
   private static final String MOVE = "move"; // move: from to
+  private static final String DEPLOY = "deploy";
+  private static final String DW = "DW";
+  private static final String DB= "DB";
   private final int viewerId = GameApi.VIEWER_ID;
   private final int sId = 1; //dummy
   private final int wId = 41;
@@ -135,13 +138,42 @@ public class LuzhanqiPresenterTest {
           0,1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,18,19,20,23,
           25,26,27,28,29,30,31,32,34,35,36,37,38,39,40,43,44,45,46,24));
   
-  private final Map<String, Object> afterDeployState = ImmutableMap.<String, Object>of(
-      BOARD, boardDeploy,
-      W, ImmutableList.of(
-          0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24),
-      B, ImmutableList.of(
-          25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49),     
-      D, ImmutableList.of());
+  private final Map<String, Object> afterDeployState = 
+      new ImmutableMap.Builder<String, Object>()
+        .put(BOARD,ImmutableList.of(
+            -1,-1,-1,-1,-1,
+            -1,-1,-1,-1,-1,
+            -1,-1,-1,-1,-1,
+            -1,-1,-1,-1,-1,
+            -1,-1,-1,-1,-1,
+            -1,-1,-1,-1,-1,
+            -1,-1,-1,-1,-1,
+            -1,-1,-1,-1,-1,
+            -1,-1,-1,-1,-1,
+            -1,-1,-1,-1,-1,
+            -1,-1,-1,-1,-1,
+            -1,-1,-1,-1,-1))
+        .put(DW, ImmutableList.of(
+            0,24,21,1,2,
+            3,4,22,5,23,
+            6,-1,8,-1,10,
+            11,12,-1,14,20,
+            7,-1,13,-1,19,
+            16,17,18,9,15))
+        .put(DB, ImmutableList.of(
+            25,26,27,28,29,
+            30,-1,31,-1,32,
+            33,34,-1,35,36,
+            37,-1,38,-1,39,
+            40,47,46,44,43,
+            45,49,48,42,41))
+        .put(DEPLOY,DEPLOY)
+        .put(W, ImmutableList.of(
+            0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24))    
+        .put(B, ImmutableList.of(
+          25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49))
+        .put(D, ImmutableList.of())
+        .build();
 
   private final Map<String, Object> normalMoveState = ImmutableMap.<String, Object>of(
       BOARD,ImmutableList.of(
@@ -328,7 +360,7 @@ public class LuzhanqiPresenterTest {
       }
     }
     verify(mockContainer).sendMakeMove(luzhanqiLogic.deployPiecesMove(
-        luzhanqiState, LuzhanqiPresenter.getApiBoard(deployMap), 
+        luzhanqiState, LuzhanqiPresenter.getDeployList(deployMap), 
         playerIds, luzhanqiState.getPlayerId(Turn.W)));    
   }
   
@@ -359,7 +391,7 @@ public class LuzhanqiPresenterTest {
       }
     }
     verify(mockContainer).sendMakeMove(luzhanqiLogic.deployPiecesMove(
-        luzhanqiState, LuzhanqiPresenter.getApiBoard(deployMap), 
+        luzhanqiState, LuzhanqiPresenter.getDeployList(deployMap), 
         playerIds, luzhanqiState.getPlayerId(Turn.B)));    
   }
   
@@ -381,17 +413,15 @@ public class LuzhanqiPresenterTest {
   }
 
   //First Move Tests
-  @SuppressWarnings("unchecked")
   @Test
   public void testFirstMoveStateForB() {    
     UpdateUI updateUI = createUpdateUI(bId, bId, afterDeployState);
     luzhanqiPresenter.updateUI(updateUI);
     LuzhanqiState state = luzhanqiLogic.gameApiStateToLuzhanqiState(
         updateUI.getState(), Turn.B, playerIds);
-    List<Integer> apiBoard = (List<Integer>)afterDeployState.get(BOARD);
     verify(mockView).setPlayerState(25, 0, 
         state.getBoard(), LuzhanqiMessage.FIRST_MOVE);
-    verify(mockContainer).sendMakeMove(luzhanqiLogic.firstMove(state, apiBoard));
+    verify(mockContainer).sendMakeMove(luzhanqiLogic.firstMove(state));
   }
   
   @SuppressWarnings("unchecked")

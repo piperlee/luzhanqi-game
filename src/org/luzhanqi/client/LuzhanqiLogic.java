@@ -32,6 +32,8 @@ public class LuzhanqiLogic {
   private static final String D = "D"; // Middle pile
   private static final String BOARD = "board"; // map to a list contains board status
   private static final String DEPLOY = "deploy"; // moves at which players deploy pieces
+  private static final String DB = "DB";
+  private static final String DW = "DW";
   private static final String MOVE = "move"; // normal moves map to a list (fromSlot, toSlot)
 
 
@@ -61,13 +63,13 @@ public class LuzhanqiLogic {
   }
 
   /** Returns the operations for deploy pieces. */
-  List<Operation> deployPiecesMove(LuzhanqiState state, List<Integer> board,
+  List<Operation> deployPiecesMove(LuzhanqiState state, List<Integer> deployList,
     List<Integer> playerIds, int lastMovePlayerId) {
     /**
      * deploy pieces
      * 0) new SetTurn(BId)
-     * 1) new Set(DEPLOY)
-     * 2) new Set BOARD
+     * 1) new Set(Deploy)
+     * 2) new Set(DB/DW)
      * 3) new Set W 
      * 4) new Set B 
      * 5) new Set D
@@ -78,51 +80,43 @@ public class LuzhanqiLogic {
     operations.add(new Set(DEPLOY, DEPLOY));
     //BLACK deploy
     if (state.getPlayerId(Turn.B) == lastMovePlayerId){
-      //empty other half
-      for(int i = 0; i < 30; i++){
-         check(board.get(i) == -1,"deploy on other's half");
-      }
       //empty CAMPSITE
-      check(board.get(36) == -1,"campsite must be empty");
-      check(board.get(38) == -1,"campsite must be empty");
-      check(board.get(42) == -1,"campsite must be empty");
-      check(board.get(46) == -1,"campsite must be empty");
-      check(board.get(48) == -1,"campsite must be empty");
+      check(deployList.get(6) == -1,"campsite must be empty");
+      check(deployList.get(8) == -1,"campsite must be empty");
+      check(deployList.get(12) == -1,"campsite must be empty");
+      check(deployList.get(16) == -1,"campsite must be empty");
+      check(deployList.get(18) == -1,"campsite must be empty");
       //flag position
-      check(board.get(56) == 49 || board.get(58) == 49, "flag must be in one of the headquarters");
+      check(deployList.get(26) == 49 || deployList.get(28) == 49, "flag must be in one of the headquarters");
       //landmine and bomb position
-      for (int i = 30; i < 49 ; i++){
-        if (i >= 30 && i<= 34){
-          check(board.get(i)!=44 && board.get(i)!=45, "illegal landmine/bomb position");
+      for (int i = 0; i < 19 ; i++){
+        if (i >= 0 && i<= 4){
+          check(deployList.get(i)!=44 && deployList.get(i)!=45, "illegal landmine/bomb position");
         }
-        check(board.get(i)!=46 && board.get(i)!=47 && board.get(i)!=48
+        check(deployList.get(i)!=46 && deployList.get(i)!=47 && deployList.get(i)!=48
             , "illegal landmine/bomb position");
       }
-      
+      operations.add(new Set(DB,deployList));
     }//WHITE deploy
     else{
-      //empty other half
-      for(int i = 30; i < 59; i++){
-        check(board.get(i) == -1,"deploy on other's half");
-      }
       //empty CAMPSITE
-      check(board.get(11) == -1,"campsite must be empty");
-      check(board.get(13) == -1,"campsite must be empty");
-      check(board.get(17) == -1,"campsite must be empty");
-      check(board.get(21) == -1,"campsite must be empty");
-      check(board.get(23) == -1,"campsite must be empty");
+      check(deployList.get(11) == -1,"campsite must be empty");
+      check(deployList.get(13) == -1,"campsite must be empty");
+      check(deployList.get(17) == -1,"campsite must be empty");
+      check(deployList.get(21) == -1,"campsite must be empty");
+      check(deployList.get(23) == -1,"campsite must be empty");
       //flag position
-      check(board.get(3)==24 || board.get(1)==24, "flag must be in one of the headquarters");
+      check(deployList.get(3)==24 || deployList.get(1)==24, "flag must be in one of the headquarters");
     //landmine and bomb position
       for (int i = 10; i < 29 ; i++){
         if (i>=25 && i<=29){
-          check(board.get(i)!=19 && board.get(i)!=20, "illegal landmine/bomb position");
+          check(deployList.get(i)!=19 && deployList.get(i)!=20, "illegal landmine/bomb position");
         }
-        check(board.get(i)!=21 && board.get(i)!=22 && board.get(i)!=23
+        check(deployList.get(i)!=21 && deployList.get(i)!=22 && deployList.get(i)!=23
             , "illegal landmine/bomb position");
       }
+      operations.add(new Set(DW,deployList));
     }
-    operations.add(new Set(BOARD, board));
     operations.add(new Set(W, state.getWhite()));
     operations.add(new Set(B, state.getBlack()));
     operations.add(new Set(D, state.getDiscard()));
@@ -130,28 +124,33 @@ public class LuzhanqiLogic {
   }
 
   /** Returns the operations for B first move. */
-  List<Operation> firstMove(LuzhanqiState state, List<Integer> board) {
+  List<Operation> firstMove(LuzhanqiState state) {
      /**
       * first move
       * 0) new SetTurn(Id)
       * 1) new Delete(DEPLOY)
-      * 2) new Set BOARD
-      * 3) new Set W 
-      * 4) new Set B 
-      * 5) new Set D
+      * 2) new Delete(DW)
+      * 3) new Delete(DB)
+      * 4) new Set BOARD
+      * 5) new Set W 
+      * 6) new Set B 
+      * 7) new Set D
       * 6-55) new SetVisibility(all)
       */
-     
+    List<Integer> board = (state.getDW().isPresent() && state.getDB().isPresent()) ?
+        concat(state.getDW().get(),state.getDB().get()) : Lists.<Integer>newArrayList(); 
     List<Operation> operations = Lists.newArrayList();
     operations.add(new SetTurn(state.getPlayerId(Turn.B)));
     operations.add(new Delete(DEPLOY));
+    operations.add(new Delete(DW));
+    operations.add(new Delete(DB));
     operations.add(new Set(BOARD,board));
     operations.add(new Set(W,state.getWhite()));
     operations.add(new Set(B,state.getBlack()));
     operations.add(new Set(D,state.getDiscard()));
-    for(int i = 0; i <= 49; i++){
-      operations.add(new SetVisibility(String.valueOf(i)));
-    }
+//    for(int i = 0; i <= 49; i++){
+//      operations.add(new SetVisibility(String.valueOf(i)));
+//    }
     return operations;
   }
 
@@ -433,13 +432,14 @@ public class LuzhanqiLogic {
     // 1) deploy pieces
     // 2) first move B
     // 3) normal move
-    if (lastMove.contains(new Set(DEPLOY,DEPLOY))) {
-      Set setBoard = (Set)lastMove.get(2);
-      return deployPiecesMove(lastState, (List<Integer>)setBoard.getValue(), 
-          playerIds, lastMovePlayerId);
-
-    }else if (lastMove.contains(new Delete(DEPLOY))) {
-      return firstMove(lastState,(List<Integer>)lastApiState.get(BOARD));
+    if (lastMove.contains(new Set(DEPLOY,DEPLOY))) {        
+      Set setDWB = (Set)lastMove.get(2);
+//      Set setDB = (Set)lastMove.get(3);
+      return deployPiecesMove(lastState, 
+          (List<Integer>)setDWB.getValue(), 
+          playerIds, lastMovePlayerId);    
+    }else if (lastMove.contains(new Delete(DW))) {
+      return firstMove(lastState);
     }else {
       //Set setBoard = (Set)lastMove.get(2);
       Set setMove = (Set)lastMove.get(1);
@@ -496,6 +496,9 @@ public class LuzhanqiLogic {
   @SuppressWarnings("unchecked")
   LuzhanqiState gameApiStateToLuzhanqiState(Map<String, Object> gameApiState,
       Turn turn, List<Integer> playerIds) {
+    if(gameApiState.isEmpty()){
+      return null;
+    }
     List<Integer> apiBoard = (List<Integer>) gameApiState.get(BOARD);   
     List<Slot> board = getBoardFromApiBoard(apiBoard);
     List<Integer> white = (List<Integer>) gameApiState.get(W);
@@ -507,6 +510,8 @@ public class LuzhanqiLogic {
         ImmutableList.copyOf(board),
         ImmutableList.copyOf(white), ImmutableList.copyOf(black),
         ImmutableList.copyOf(discard),
+        Optional.fromNullable((List<Integer>) gameApiState.get(DW)),
+        Optional.fromNullable((List<Integer>) gameApiState.get(DB)),
         Optional.fromNullable((List<Integer>) gameApiState.get(MOVE)),
         gameApiState.containsKey(DEPLOY));
   }

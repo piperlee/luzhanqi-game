@@ -37,6 +37,8 @@
       <g:HorizontalPanel>
         <g:Button ui:field="deployBtn" text="Finish Deploy"/>
         <g:Button ui:field="moveBtn" text="Confirm Move"/>
+        <!-- test button -->
+        <g:Button ui:field="quickDeploy" text="Quick Deploy"/>
       </g:HorizontalPanel>
       <g:Grid ui:field="deployGrid" />
     </g:VerticalPanel>

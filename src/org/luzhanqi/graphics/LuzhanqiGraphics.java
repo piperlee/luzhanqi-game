@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.luzhanqi.client.LuzhanqiPresenter;
 import org.luzhanqi.client.LuzhanqiPresenter.LuzhanqiMessage;
+import org.luzhanqi.client.LuzhanqiState;
 import org.luzhanqi.client.Piece;
 import org.luzhanqi.client.Slot;
 import org.luzhanqi.client.Turn;
@@ -50,6 +51,9 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   Button deployBtn;
   @UiField
   Button moveBtn;
+  // test button
+  @UiField
+  Button quickDeploy;
   
   private boolean deployEnable = false;
   private boolean moveEnableClicks = false;
@@ -57,6 +61,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   private LuzhanqiPresenter presenter;
   private Piece selectedPiece;
   private Slot selectedSlot;
+  
 
 
   public LuzhanqiGraphics() {
@@ -240,14 +245,54 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
     }
   }
   
-  private void setGameGridEmpty(int i, int j){
+  private void setGameGridEmpty(int i, int j, boolean withClick){
     gameGrid.clearCell(i, j);
-    gameGrid.setWidget(i, j, createSlotImage(new Slot(i*5+j,-1),true));
+    gameGrid.setWidget(i, j, createSlotImage(new Slot(i*5+j,-1),withClick));
   }
   
-  private void setDeployGridEmpty(int i, int j){
+  private void setGameGridImage(int i, int j, Image image){
+    gameGrid.clearCell(i, j);
+    gameGrid.setWidget(i, j, image);
+  }
+  
+  private void setGameGridByDBW(List<Integer> dbw,Turn turn , boolean withClick){
+    if(turn == Turn.W){
+      for(int i = 0; i<gameGrid.getRowCount();i++){
+        for(int j =0; j<gameGrid.getColumnCount();j++){
+          if(i>5)
+            setGameGridEmpty(i,j,false);
+          else
+            setGameGridImage(i,j,createSlotImage(new Slot(i*5+j,dbw.get(i*5+j)),false));
+        }
+      }
+    }else{
+      for(int i = 0; i<gameGrid.getRowCount();i++){
+        for(int j =0; j<gameGrid.getColumnCount();j++){
+          if(i<6)
+            setGameGridEmpty(i,j,false);
+          else
+            setGameGridImage(i,j,createSlotImage(new Slot(i*5+j,dbw.get(i*5+j-30)),false));
+        }
+      }
+    }
+  }
+  
+  private void setDeployGridEmpty(int i, int j, boolean withClick){
     deployGrid.clearCell(i, j);
-    deployGrid.setWidget(i, j, createPieceImage(null,true));
+    deployGrid.setWidget(i, j, createPieceImage(null,withClick));
+  }
+  
+  private void setDeployGridImage(int i, int j, Image image){
+    deployGrid.clearCell(i, j);
+    deployGrid.setWidget(i, j, image);
+  }
+  
+  private void setDeployGridAllEmpty(boolean withClick){
+    for(int i = 0; i< deployGrid.getRowCount(); i++){
+      for(int j = 0; j< deployGrid.getColumnCount(); j++){
+        setDeployGridEmpty(i, j, withClick);
+      }
+    }
   }
 
   @UiHandler("deployBtn")
@@ -262,6 +307,55 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
     moveBtn.setEnabled(false);
     moveEnableClicks = false;
     presenter.finishedNormalMove();
+  }
+  
+  //TODO: for test
+  @UiHandler("quickDeploy")
+  void onClickQuickDeploy(ClickEvent e){
+    deployBtn.setEnabled(true);
+    List<Integer> list = ImmutableList.of(
+        0,24,21,1,2,
+        3,4,22,5,23,
+        6,-1,8,-1,10,
+        11,12,-1,14,20,
+        7,-1,13,-1,19,
+        16,17,18,9,15,
+        25,26,27,28,29,
+        30,-1,31,-1,32,
+        33,34,-1,35,36,
+        37,-1,38,-1,39,
+        40,47,46,44,43,
+        45,49,48,42,41);
+    if(presenter.getTurn() == Turn.W){
+      for(int i = 0; i<6;i++){
+        for(int j = 0; j<5; j++){
+          Slot slot = new Slot(i*5+j,list.get(i*5+j));
+          Piece piece = slot.getPiece();
+          setGameGridImage(i,j,
+              createSlotImage(slot,true));
+          if(piece!=null){
+            presenter.deployMap.put(piece, slot);
+          }
+        }
+      }
+    }else{
+      for(int i = 6; i<12; i++){
+        for(int j = 0; j<5; j++){
+          Slot slot = new Slot(i*5+j,list.get(i*5+j));
+          Piece piece = slot.getPiece();
+          setGameGridImage(i,j,
+              createSlotImage(slot,true));
+          if(piece!=null){
+            presenter.deployMap.put(piece, slot);
+          }
+        }
+      }
+    }
+    for(int i = 0; i<5; i++){
+      for(int j = 0; j<5; j++){
+        setDeployGridEmpty(i,j,true);
+      }
+    }
   }
 
   @Override
@@ -297,12 +391,32 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
       moveBtn.setEnabled(false);
       moveEnableClicks = false;
     }else if(luzhanqiMessage == LuzhanqiMessage.NORMAL_MOVE){
-      placeImages(gameGrid,createBoard(board,false));
+      placeImages(gameGrid,createBoard(board,true));
       deployBtn.setEnabled(false);
       deployEnable = false;
       moveBtn.setEnabled(true);
       moveEnableClicks = true;
-    }    
+    }else{
+      LuzhanqiState state = presenter.getState();    
+      if(state.getDB().isPresent() && presenter.getTurn() == Turn.B){
+        setGameGridByDBW(state.getDB().get(),Turn.B,false);
+        setDeployGridAllEmpty(false);
+        deployEnable = false;
+        deployBtn.setEnabled(false);
+      }else if(state.getDW().isPresent() && presenter.getTurn() == Turn.W){
+        setGameGridByDBW(state.getDW().get(),Turn.W,false);
+        setDeployGridAllEmpty(false);
+        deployEnable = false;
+        deployBtn.setEnabled(false);
+      }else{
+        placeImages(gameGrid,createDeployBoard(board,presenter.getTurn()));
+        placeDeployImages(deployGrid,createDeployPieces(presenter.getTurn()));
+        deployEnable = true;
+        deployBtn.setEnabled(true);
+      }      
+      moveEnableClicks = true;
+      moveBtn.setEnabled(false);
+    }
   }
   
   @Override
@@ -311,20 +425,19 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
     if(!lastDeploy.isEmpty()){
       Piece piece = lastDeploy.keySet().iterator().next();
       Slot slot = lastDeploy.get(piece).isPresent() ?
-          lastDeploy.get(piece).get() : null;
-      //TODO:           
+          lastDeploy.get(piece).get() : null;          
       int pieceRow = (piece.getPlayer()==Turn.B) ?
             piece.getKey()/5-5 : piece.getKey()/5;
       int pieceCol = piece.getKey()%5;
       int slotRow = piece.getSlot()/5;
       int slotCol = piece.getSlot()%5;      
       if (slot == null){        
-        setGameGridEmpty(slotRow,slotCol);
+        setGameGridEmpty(slotRow,slotCol,true);
         deployGrid.clearCell(pieceRow, pieceCol);
         deployGrid.setWidget(pieceRow, pieceCol, 
             createPieceImage(new Piece(piece.getKey(),-1),true));
       }else{        
-        setDeployGridEmpty(pieceRow,pieceCol);
+        setDeployGridEmpty(pieceRow,pieceCol,true);
         gameGrid.clearCell(slotRow, slotCol);
         gameGrid.setWidget(slotRow, slotCol, createSlotImage(slot,true));
       }
@@ -335,13 +448,15 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   @Override
   public void nextFromTo(List<Slot> fromTo) {
     // TODO Auto-generated method stub
-    Slot from = fromTo.get(0);
-    Slot to = fromTo.get(1);
-    int fromRow = from.getKey()/5;
-    int fromCol = from.getKey()%5;
-    int toRow = to.getKey()/5;
-    int toCol = to.getKey()%5;
-    gameGrid.setWidget(fromRow, fromCol, createSlotImage(from,true));
-    gameGrid.setWidget(toRow, toCol, createSlotImage(to,true));
+    if(!fromTo.isEmpty()){
+      Slot from = fromTo.get(0);
+      Slot to = fromTo.get(1);
+      int fromRow = from.getKey()/5;
+      int fromCol = from.getKey()%5;
+      int toRow = to.getKey()/5;
+      int toCol = to.getKey()%5;
+      gameGrid.setWidget(fromRow, fromCol, createSlotImage(from,true));
+      gameGrid.setWidget(toRow, toCol, createSlotImage(to,true));
+    }
   }
 }

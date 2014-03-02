@@ -35,13 +35,16 @@ public class LuzhanqiState {
   private final ImmutableList<Integer> white;
   private final ImmutableList<Integer> black;
   private final ImmutableList<Integer> discard;
+  private final Optional<List<Integer>> dw;
+  private final Optional<List<Integer>> db;
   private final Optional<List<Integer>> move;
   private final boolean isDeploy;
  
 
   public LuzhanqiState(Turn turn, ImmutableList<Integer> playerIds,
       ImmutableList<Slot> board, ImmutableList<Integer> white,
-      ImmutableList<Integer> black, ImmutableList<Integer> discard, 
+      ImmutableList<Integer> black, ImmutableList<Integer> discard,
+      Optional<List<Integer>> dw, Optional<List<Integer>> db,
       Optional<List<Integer>> move, boolean isDeploy) {
     super();
     this.turn = checkNotNull(turn);
@@ -50,6 +53,8 @@ public class LuzhanqiState {
     this.white = checkNotNull(white);
     this.black = checkNotNull(black);
     this.discard = checkNotNull(discard);
+    this.dw = dw;
+    this.db = db;
     this.move = move;
     this.isDeploy = isDeploy;
   }
@@ -90,6 +95,21 @@ public class LuzhanqiState {
     return black;
   }
 
+  public Optional<List<Integer>> getDW() {
+    return dw;
+  }
+  
+  public Optional<List<Integer>> getDB() {
+    return db;
+  }
+  
+  public boolean boardEmpty(){
+    for(Slot slot: board){
+      if (!slot.emptySlot()) return false;
+    }
+    return true;
+  }
+  
   public ImmutableList<Integer> getWhiteOrBlack(Turn turn) {
     return turn.isWhite() ? white : black;
   }
