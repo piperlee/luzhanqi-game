@@ -15,6 +15,7 @@ import org.luzhanqi.client.GameApi.SetVisibility;
 import org.luzhanqi.client.GameApi.VerifyMove;
 import org.luzhanqi.client.GameApi.VerifyMoveDone;
 import org.luzhanqi.client.Piece.PieceType;
+import org.luzhanqi.client.Slot.SlotType;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -76,7 +77,10 @@ public class LuzhanqiLogic {
      */
     List<Operation> operations = Lists.newArrayList();
     // B first
-    operations.add(new SetTurn(state.getPlayerId(Turn.B)));
+    if(!state.getDB().isPresent() && !state.getDW().isPresent())
+      operations.add(new SetTurn(sId));
+    else
+      operations.add(new SetTurn(state.getPlayerId(Turn.B)));
     operations.add(new Set(DEPLOY, DEPLOY));
     //BLACK deploy
     if (state.getPlayerId(Turn.B) == lastMovePlayerId){
@@ -184,35 +188,18 @@ public class LuzhanqiLogic {
      * Check if a pieceMove is valid, if so add it to operations
      */
     check(pieceMove.get(0)>=0 && pieceMove.get(1)<60, "out of board");
-    check(pieceMove.get(0)!=pieceMove.get(1), "same slot move");
-    check(pieceMove.get(0)!=-1, "empty slot move");
-    int pieceFromKey = board.get(pieceMove.get(0));
-    int pieceToKey = board.get(pieceMove.get(1));
-    if(turn == Turn.B){
-      //only could move own pieces     
-      check(pieceFromKey>=25 && pieceFromKey<=49, "move other's piece");
-      //flag and landmine cannot be moved
-      check(pieceFromKey!=49, "flag move");
-      check(pieceFromKey!=46 && pieceFromKey!=47 && pieceFromKey!=48, "landmine move");
-      check(pieceToKey<25, "move onto one's own piece");
-    }else if (turn == Turn.W){
-    //only could move own pieces
-      check(pieceFromKey>=0 && pieceFromKey<=24, "move other's piece");
-      //flag and landmine cannot be moved
-      check(pieceFromKey!=24, "flag move");
-      check(pieceFromKey!=21 && pieceFromKey!=22 && pieceFromKey!=23, "landmine move");
-      check(pieceToKey>24 || pieceToKey==-1, "move onto one's own piece");
-    }
+    
     operations.add(new Set(MOVE,pieceMove));
     ArrayList<Integer> apiBoard = Lists.newArrayList(board);
     Slot slotFrom = state.getBoard().get(pieceMove.get(0));
     Slot slotTo = state.getBoard().get(pieceMove.get(1));
-    
+
+    check(fromIsValid(state,slotFrom));
     /**
      *  Move with no beat
      */
     if (slotTo.emptySlot()){
-      check(positionValid(state,slotFrom,slotTo),"position invalid");
+      check(toIsValid(state,slotFrom,slotTo),"position invalid");
       apiBoard.set(slotFrom.getKey(), -1);
       apiBoard.set(slotTo.getKey(), slotFrom.getPiece().getKey());
       operations.add(new Set(BOARD,apiBoard));
@@ -224,7 +211,7 @@ public class LuzhanqiLogic {
      * Move with beat
      */
     else{
-      check(positionValid(state,slotFrom,slotTo),"position invalid");
+      check(toIsValid(state,slotFrom,slotTo),"position invalid");
      // check(beatValid(state,slotFrom,slotTo),"position invalid");
             
       //End Game-I: flag is beaten
@@ -353,31 +340,59 @@ public class LuzhanqiLogic {
     return operations;
   }
   
+  boolean fromIsValid(LuzhanqiState state, Slot slotFrom){
+    // empty slot from OR move other's piece
+    if (slotFrom.getPiece() == null 
+        || slotFrom.getPiece().getPlayer()!=state.getTurn())
+      return false;
+    // flag, landmine move
+    if (slotFrom.getPiece().getFace() == PieceType.FLAG
+        || slotFrom.getPiece().getFace() == PieceType.LANDMINE)
+      return false;
+    
+    return true;
+  }
   /**
    * Check if a move from slotFrom to slotTo has a valid path, regardless pieces
    * beat with each other.
    */
-  boolean positionValid(LuzhanqiState state, Slot slotFrom, Slot slotTo){
+  boolean toIsValid(LuzhanqiState state, Slot slotFrom, Slot slotTo){    
+    // move on one's own piece
+    if (!slotTo.emptySlot()
+        && slotTo.getPiece().getPlayer() == slotFrom.getPiece().getPlayer())
+      return false;
+    // same slot move
+    if (slotFrom.getKey() == slotTo.getKey()) return false;
+    // attack other's in CAMPSITE piece
+    if (!slotTo.emptySlot() && slotTo.getType() == SlotType.CAMPSITE)
+      return false;
+
     if (!slotFrom.isAdj(slotTo.getKey())){
       //slotTo has to be onRail
-      check(slotTo.getOnRail(),"slotTo off rail");
+      if(!slotTo.getOnRail() || !slotFrom.getOnRail()) return false;
       if (slotFrom.getPiece().getFace() == PieceType.ENGINEER){
-        check(engineerOnRail(state,slotFrom,slotTo),"no valid engineer rail path");
+        if(!engineerOnRail(state,slotFrom,slotTo)) return false;
       }else{
         int iFrom = slotFrom.getKey()/5;
         int jFrom = slotFrom.getKey()%5;
         int iTo = slotTo.getKey()/5;
         int jTo = slotTo.getKey()%5;
         //make no turns
-        check(iFrom==iTo || jFrom==jTo, "turn exists");
+        if(iFrom!=iTo && jFrom!=jTo) return false;
+        if((slotFrom.getKey() == 26 && slotTo.getKey() == 31)
+            ||(slotFrom.getKey() == 31 && slotTo.getKey() == 26)
+            ||(slotFrom.getKey() == 28 && slotTo.getKey() == 33)
+            ||(slotFrom.getKey() == 33 && slotTo.getKey() == 28))
+          return false;
         //no block
         if(iFrom == iTo){
           for(int j=Math.min(jFrom,jTo)+1; j<Math.max(jFrom,jTo); j++){
-            check(state.getBoard().get(iFrom*5+j).getPiece()==null,"block exists");
+            if(state.getBoard().get(iFrom*5+j).getPiece()!=null) return false;
           }
         }else if(jFrom == jTo){
           for(int i=Math.min(iFrom,iTo)+1; i<Math.max(iFrom,iTo); i++){
-            check(state.getBoard().get(i*5+jFrom).getPiece()==null,"block exists");
+            if(state.getBoard().get(i*5+jFrom).getPiece()!=null)
+              return false;
           }
         }
       }
@@ -392,7 +407,8 @@ public class LuzhanqiLogic {
    */
   boolean engineerOnRail(LuzhanqiState state, Slot from, Slot to){
     LinkedList<Slot> Q = new LinkedList<Slot>();
-    from.setVisited(true);
+    boolean [] visited = new boolean [60];
+    visited[from.getKey()] = true;
     Q.add(from);
     while (!Q.isEmpty()){
       Slot cur = Q.removeFirst();
@@ -401,10 +417,10 @@ public class LuzhanqiLogic {
           return true;
         }
         if (state.getBoard().get(i).getOnRail()){
-          if ((!state.getBoard().get(i).getVisited()) 
+          if ((!visited[i]) 
               && state.getBoard().get(i).emptySlot()){
             Q.add(state.getBoard().get(i));
-            state.getBoard().get(i).setVisited(true);
+            visited[i] = true;
           }
         }
       }

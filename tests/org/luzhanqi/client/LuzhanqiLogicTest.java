@@ -8,7 +8,6 @@ import org.luzhanqi.client.GameApi.Set;
 import org.luzhanqi.client.GameApi.SetTurn;
 import org.luzhanqi.client.GameApi.Delete;
 import org.luzhanqi.client.GameApi.EndGame;
-import org.luzhanqi.client.GameApi.SetVisibility;
 import org.luzhanqi.client.GameApi.VerifyMove;
 import org.luzhanqi.client.GameApi.VerifyMoveDone;
 import org.junit.Test;
@@ -192,7 +191,7 @@ public class LuzhanqiLogicTest {
   @Test
   public void testDeployB() {
     List<Operation> move = ImmutableList.<Operation>of(
-        new SetTurn(bId),
+        new SetTurn(sId),
         new Set(DEPLOY,DEPLOY),
         new Set(DB,ImmutableList.of(
             25,26,27,28,29,
@@ -213,7 +212,7 @@ public class LuzhanqiLogicTest {
   @Test
   public void testDeployW() {
     List<Operation> move = ImmutableList.<Operation>of(
-        new SetTurn(bId),
+        new SetTurn(sId),
         new Set(DEPLOY,DEPLOY),
         new Set(DW,ImmutableList.of(
             0,24,21,1,2,
@@ -340,31 +339,6 @@ public class LuzhanqiLogicTest {
         new Set(B, ImmutableList.of(
             25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49)),     
         new Set(D, ImmutableList.of())
-//        new SetVisibility(String.valueOf(0)), new SetVisibility(String.valueOf(1)),
-//        new SetVisibility(String.valueOf(2)), new SetVisibility(String.valueOf(3)),
-//        new SetVisibility(String.valueOf(4)), new SetVisibility(String.valueOf(5)),
-//        new SetVisibility(String.valueOf(6)), new SetVisibility(String.valueOf(7)),
-//        new SetVisibility(String.valueOf(8)), new SetVisibility(String.valueOf(9)),
-//        new SetVisibility(String.valueOf(10)), new SetVisibility(String.valueOf(11)),
-//        new SetVisibility(String.valueOf(12)), new SetVisibility(String.valueOf(13)),
-//        new SetVisibility(String.valueOf(14)), new SetVisibility(String.valueOf(15)),
-//        new SetVisibility(String.valueOf(16)), new SetVisibility(String.valueOf(17)),
-//        new SetVisibility(String.valueOf(18)), new SetVisibility(String.valueOf(19)),
-//        new SetVisibility(String.valueOf(20)), new SetVisibility(String.valueOf(21)),
-//        new SetVisibility(String.valueOf(22)), new SetVisibility(String.valueOf(23)),
-//        new SetVisibility(String.valueOf(24)), new SetVisibility(String.valueOf(25)),
-//        new SetVisibility(String.valueOf(26)), new SetVisibility(String.valueOf(27)),
-//        new SetVisibility(String.valueOf(28)), new SetVisibility(String.valueOf(29)),
-//        new SetVisibility(String.valueOf(30)), new SetVisibility(String.valueOf(31)),
-//        new SetVisibility(String.valueOf(32)), new SetVisibility(String.valueOf(33)),
-//        new SetVisibility(String.valueOf(34)), new SetVisibility(String.valueOf(35)),
-//        new SetVisibility(String.valueOf(36)), new SetVisibility(String.valueOf(37)),
-//        new SetVisibility(String.valueOf(38)), new SetVisibility(String.valueOf(39)),
-//        new SetVisibility(String.valueOf(40)), new SetVisibility(String.valueOf(41)),
-//        new SetVisibility(String.valueOf(42)), new SetVisibility(String.valueOf(43)),
-//        new SetVisibility(String.valueOf(44)), new SetVisibility(String.valueOf(45)),
-//        new SetVisibility(String.valueOf(46)), new SetVisibility(String.valueOf(47)),
-//        new SetVisibility(String.valueOf(48)), new SetVisibility(String.valueOf(49))
         );
     
     assertMoveOk(vMove(bId,afterDeployState,move));

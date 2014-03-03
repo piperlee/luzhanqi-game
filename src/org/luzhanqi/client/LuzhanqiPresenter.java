@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.luzhanqi.client.GameApi.Container;
-import org.luzhanqi.client.GameApi.Delete;
 import org.luzhanqi.client.GameApi.Operation;
 import org.luzhanqi.client.GameApi.SetTurn;
 import org.luzhanqi.client.GameApi.UpdateUI;
@@ -94,7 +93,6 @@ public class LuzhanqiPresenter {
   private LuzhanqiState luzhanqiState;
   private List<Integer> apiBoard;
   private List<Slot> fromTo;
-  //TODO: for test
   public  HashMap<Piece,Slot> deployMap; 
   private HashMap<Piece,Optional<Slot>> lastDeploy;
   private List<Integer> playerIds;
@@ -105,14 +103,22 @@ public class LuzhanqiPresenter {
     this.container = container;
     view.setPresenter(this);
   }
-
+  
+  /** Get current presenter Turn, i.e who is UI active */
   public Turn getTurn(){
     return myTurn.get();
   }
   
+  /** Get current game Turn, i.e who should move */
+  public Turn getGameTurn(){
+    return luzhanqiState.getTurn();
+  }
+  
+  /** Get current game state */
   public LuzhanqiState getState(){
     return luzhanqiState;
   }
+  
   /** Updates the presenter and the view with the state in updateUI. */
     public void updateUI(UpdateUI updateUI) {
       playerIds = updateUI.getPlayerIds();
@@ -168,7 +174,6 @@ public class LuzhanqiPresenter {
         view.setPlayerState(numberOfOpponentCards, luzhanqiState.getDiscard().size(), 
             luzhanqiState.getBoard(), getLuzhanqiMessage());
         if (isMyTurn() || getLuzhanqiMessage()==LuzhanqiMessage.FIRST_MOVE) {          
-          //TODO: what triggers first MOVE
           if(getLuzhanqiMessage()==LuzhanqiMessage.FIRST_MOVE){
             if (myTurn.isPresent() && myTurn.get().isBlack()) {
               firstMove();            
@@ -217,19 +222,23 @@ public class LuzhanqiPresenter {
   }
 
   // check if this turn is my turn
-  private boolean isMyTurn() {
+  public boolean isMyTurn() {
     return myTurn.isPresent() && myTurn.get() == luzhanqiState.getTurn();
   }
   
   // check if this turn is deploy turn
-  private boolean isSTurn(){
+  public boolean isSTurn(){
     return luzhanqiState.getTurn() == Turn.S;
   }
   
-  // check if certain piece is my piece
-  private boolean isMyPiece(Piece piece){
-    return (myTurn.get()==Turn.W)?(piece.getKey()>=0 && piece.getKey()<25)
-        : (piece.getKey()>=25 && piece.getKey()<50);
+  // check if a moving destination is valid
+  public boolean toValid(Slot from, Slot to){
+    return luzhanqiLogic.toIsValid(luzhanqiState, from, to);
+  }
+  
+  // check if a moving origin is valid
+  public boolean fromValid(Slot from){
+    return luzhanqiLogic.fromIsValid(luzhanqiState, from);
   }
   
   // check if a slot is valid deploy slot
@@ -347,8 +356,7 @@ public class LuzhanqiPresenter {
    * The view can only call this method if the presenter called {@link View#nextFromTo(List)}.
    */
   public void moveSelected(Slot from, Slot to) {
-    check(isMyTurn() && !from.emptySlot() && isMyPiece(from.getPiece()) 
-        && (to.emptySlot() || !isMyPiece(to.getPiece())));
+    if(!isMyTurn()) return;
     if (fromTo.isEmpty()){
       fromTo.add(from);
       fromTo.add(to);
