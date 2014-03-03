@@ -97,6 +97,7 @@ public class LuzhanqiPresenter {
   private HashMap<Piece,Optional<Slot>> lastDeploy;
   private List<Integer> playerIds;
   private int yourPlayerId;
+  private boolean isEndGame = false;
     
   public LuzhanqiPresenter(View view, Container container) {
     this.view = view;
@@ -149,6 +150,7 @@ public class LuzhanqiPresenter {
       luzhanqiState = 
           luzhanqiLogic.gameApiStateToLuzhanqiState(updateUI.getState(), turnOfColor, playerIds);
       //apiBoard = getApiBoard(luzhanqiState.getBoard());
+      isEndGame = endGame();
       
       if (updateUI.isViewer()) {
         view.setViewerState(luzhanqiState.getWhite().size(), luzhanqiState.getBlack().size(),
@@ -179,27 +181,31 @@ public class LuzhanqiPresenter {
               firstMove();            
             }          
           } else if (getLuzhanqiMessage()==LuzhanqiMessage.NORMAL_MOVE){
-            // Choose the next card only if the game is not over
-            if (!endGame(luzhanqiState))
+            // Choose the next card only if the game is not over            
+            if (!isEndGame)
               nextFromTo();
           }
         }
       }   
     }
+    
+  public boolean getIsEndGame(){
+    return isEndGame;
+  }
 
   // to check if the game state is an end game state
-  private boolean endGame(LuzhanqiState state){
-    if(state.getDiscard().contains(24) || state.getDiscard().contains(49))
+  private boolean endGame(){
+    if(luzhanqiState.getDiscard().contains(24) || luzhanqiState.getDiscard().contains(49))
       return true;
     boolean blackNoMove = true;
-    for(Integer i: state.getBlack()){
+    for(Integer i: luzhanqiState.getBlack()){
       if(i < 46){ 
         blackNoMove=false;
         break;
       }
     }
     boolean whiteNoMove = true;
-    for(Integer i: state.getWhite()){
+    for(Integer i: luzhanqiState.getWhite()){
       if(i < 21){ 
         whiteNoMove=false;
         break;

@@ -423,7 +423,11 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   public void setViewerState(int numberOfWhitePieces, int numberOfBlackPieces,
       int numberOfDicardPieces, List<Slot> board,
       LuzhanqiMessage luzhanqiMessage) {
-    curTurn.setText("Current Turn: " + presenter.getGameTurn().toString());
+    if (presenter.getIsEndGame()){
+      curTurn.setText("GAME END");
+    }else{
+      curTurn.setText("Current Turn: " + presenter.getGameTurn().toString());
+    }
     placeImages(gameGrid,createBoard(board,false));
     deployGrid.clear();
     disableClicks(); 
@@ -436,8 +440,11 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
       LuzhanqiMessage luzhanqiMessage) {
     disableClicks();
     LuzhanqiState state = presenter.getState();
-    
-    curTurn.setText("Current Turn: " + presenter.getGameTurn().toString());
+    if (presenter.getIsEndGame()){
+      curTurn.setText("GAME END");
+    }else{
+      curTurn.setText("Current Turn: " + presenter.getGameTurn().toString());
+    }
     
     if(luzhanqiMessage == LuzhanqiMessage.IS_DEPLOY){
       quickDeploy.setEnabled(true);
@@ -463,7 +470,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
       selectedFromSlot = null;
       selectedToSlot = null;
       selectedFromImage = null;
-      if(presenter.isMyTurn())
+      if(presenter.isMyTurn() && !presenter.getIsEndGame())
         placeImages(gameGrid,createBoard(board,true));
       else
         placeImages(gameGrid,createBoard(board,false));
