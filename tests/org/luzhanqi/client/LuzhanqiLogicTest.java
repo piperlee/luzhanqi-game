@@ -3,13 +3,13 @@ package org.luzhanqi.client;
 import java.util.List;
 import java.util.Map;
 
-import org.luzhanqi.client.GameApi.Operation;
-import org.luzhanqi.client.GameApi.Set;
-import org.luzhanqi.client.GameApi.SetTurn;
-import org.luzhanqi.client.GameApi.Delete;
-import org.luzhanqi.client.GameApi.EndGame;
-import org.luzhanqi.client.GameApi.VerifyMove;
-import org.luzhanqi.client.GameApi.VerifyMoveDone;
+import org.game_api.GameApi.Operation;
+import org.game_api.GameApi.Set;
+import org.game_api.GameApi.SetTurn;
+import org.game_api.GameApi.Delete;
+import org.game_api.GameApi.EndGame;
+import org.game_api.GameApi.VerifyMove;
+import org.game_api.GameApi.VerifyMoveDone;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -31,9 +31,9 @@ public class LuzhanqiLogicTest {
     assertEquals(verifyMove.getLastMovePlayerId(), verifyDone.getHackerPlayerId());
   }
   
-  private final int wId = 41;
-  private final int bId = 42;
-  private final int sId = 1; // dummy turn s id
+  private final String wId = "41";
+  private final String bId = "42";
+  private final String sId = "1"; // dummy turn s id
   private final String playerId = "playerId";
   private static final String W = "W"; // White hand
   private static final String B = "B"; // Black hand
@@ -130,10 +130,10 @@ public class LuzhanqiLogicTest {
           25,26,27,28,29,30,31,32,34,35,36,37,38,39,40,43,44,45,46)); 
   
   private VerifyMove vMove(
-      int lastMovePlayerId, Map<String, Object> lastState, List<Operation> lastMove) {
+      String lastMovePlayerId, Map<String, Object> lastState, List<Operation> lastMove) {
     return new VerifyMove(playersInfo,
         emptyState,
-        lastState, lastMove, lastMovePlayerId, ImmutableMap.<Integer, Integer>of());
+        lastState, lastMove, lastMovePlayerId, ImmutableMap.<String, Integer>of());
   }
   
   private List<Operation> getInitialOperations() {

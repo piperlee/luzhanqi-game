@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.luzhanqi.client.GameApi.Container;
-import org.luzhanqi.client.GameApi.Operation;
-import org.luzhanqi.client.GameApi.SetTurn;
-import org.luzhanqi.client.GameApi.UpdateUI;
+import org.game_api.GameApi.Container;
+import org.game_api.GameApi.Operation;
+import org.game_api.GameApi.SetTurn;
+import org.game_api.GameApi.UpdateUI;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -88,6 +88,7 @@ public class LuzhanqiPresenter {
   private final LuzhanqiLogic luzhanqiLogic = new LuzhanqiLogic();
   private final View view;
   private final Container container;
+  private final String sId = "1";
   /** A viewer doesn't have a color. */
   private Optional<Turn> myTurn;
   private LuzhanqiState luzhanqiState;
@@ -95,8 +96,8 @@ public class LuzhanqiPresenter {
   private List<Slot> fromTo;
   public  HashMap<Piece,Slot> deployMap; 
   private HashMap<Piece,Optional<Slot>> lastDeploy;
-  private List<Integer> playerIds;
-  private int yourPlayerId;
+  private List<String> playerIds;
+  private String yourPlayerId;
   private boolean isEndGame = false;
     
   public LuzhanqiPresenter(View view, Container container) {
@@ -140,8 +141,8 @@ public class LuzhanqiPresenter {
       Turn turnOfColor = null;
       for (Operation operation : updateUI.getLastMove()) {
         if (operation instanceof SetTurn) {
-          int pId = ((SetTurn) operation).getPlayerId();
-          turnOfColor = pId==1 ? Turn.S : Turn.values()[playerIds.indexOf(pId)];
+          String pId = ((SetTurn) operation).getPlayerId();
+          turnOfColor = pId.equals(sId) ? Turn.S : Turn.values()[playerIds.indexOf(pId)];
         }
       }
       deployMap = new HashMap<Piece,Slot>();
@@ -425,7 +426,7 @@ public class LuzhanqiPresenter {
     return apiBoard;
   }
 
-  private void sendInitialMove(List<Integer> playerIds) {
+  private void sendInitialMove(List<String> playerIds) {
     container.sendMakeMove(luzhanqiLogic.getInitialMove(playerIds));
   }
 }

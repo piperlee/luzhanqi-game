@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -20,7 +19,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class LuzhanqiState {
   private final Turn turn;
-  private final ImmutableList<Integer> playerIds;
+  private final ImmutableList<String> playerIds;
 
   /**
    * Note that some of the entries will have null, meaning the card is not visible to us.
@@ -41,7 +40,7 @@ public class LuzhanqiState {
   private final boolean isDeploy;
  
 
-  public LuzhanqiState(Turn turn, ImmutableList<Integer> playerIds,
+  public LuzhanqiState(Turn turn, ImmutableList<String> playerIds,
       ImmutableList<Slot> board, ImmutableList<Integer> white,
       ImmutableList<Integer> black, ImmutableList<Integer> discard,
       Optional<List<Integer>> dw, Optional<List<Integer>> db,
@@ -79,11 +78,11 @@ public class LuzhanqiState {
     return apiBoard;
   }
 
-  public ImmutableList<Integer> getPlayerIds() {
+  public ImmutableList<String> getPlayerIds() {
     return playerIds;
   }
 
-  public int getPlayerId(Turn color) {
+  public String getPlayerId(Turn color) {
     return playerIds.get(color.ordinal());
   }
 

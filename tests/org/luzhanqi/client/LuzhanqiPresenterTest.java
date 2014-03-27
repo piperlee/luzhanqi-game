@@ -8,10 +8,11 @@ import java.util.Map;
 
 import org.luzhanqi.client.LuzhanqiPresenter.LuzhanqiMessage;
 import org.luzhanqi.client.LuzhanqiPresenter.View;
-import org.luzhanqi.client.GameApi.Container;
-import org.luzhanqi.client.GameApi.Operation;
-import org.luzhanqi.client.GameApi.SetTurn;
-import org.luzhanqi.client.GameApi.UpdateUI;
+import org.game_api.GameApi;
+import org.game_api.GameApi.Container;
+import org.game_api.GameApi.Operation;
+import org.game_api.GameApi.SetTurn;
+import org.game_api.GameApi.UpdateUI;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,11 +66,11 @@ public class LuzhanqiPresenterTest {
   private static final String DEPLOY = "deploy";
   private static final String DW = "DW";
   private static final String DB= "DB";
-  private final int viewerId = GameApi.VIEWER_ID;
-  private final int sId = 1; //dummy
-  private final int wId = 41;
-  private final int bId = 42;
-  private final ImmutableList<Integer> playerIds = ImmutableList.of(wId, bId, sId);
+  private final String viewerId = GameApi.VIEWER_ID;
+  private final String sId = "1"; //dummy
+  private final String wId = "41";
+  private final String bId = "42";
+  private final ImmutableList<String> playerIds = ImmutableList.of(wId, bId, sId);
   private final ImmutableMap<String, Object> wInfo =
       ImmutableMap.<String, Object>of(PLAYER_ID, wId);
   private final ImmutableMap<String, Object> bInfo =
@@ -214,18 +215,18 @@ public class LuzhanqiPresenterTest {
   // Initial tests
   @Test
   public void testEmptyStateForB() {
-    luzhanqiPresenter.updateUI(createUpdateUI(bId, 0, emptyState));
+    luzhanqiPresenter.updateUI(createUpdateUI(bId, bId, emptyState));
     verify(mockContainer).sendMakeMove(luzhanqiLogic.getInitialMove(playerIds));
   }
 
   @Test
   public void testEmptyStateForW() {
-    luzhanqiPresenter.updateUI(createUpdateUI(wId, 0, emptyState));
+    luzhanqiPresenter.updateUI(createUpdateUI(wId, bId, emptyState));
   }
 
   @Test
   public void testEmptyStateForViewer() {
-    luzhanqiPresenter.updateUI(createUpdateUI(viewerId, 0, emptyState));
+    luzhanqiPresenter.updateUI(createUpdateUI(viewerId, bId, emptyState));
   }
 
   //Deploy tests
@@ -579,13 +580,13 @@ public class LuzhanqiPresenterTest {
   }
 
   private UpdateUI createUpdateUI(
-      int yourPlayerId, int turnOfPlayerId, Map<String, Object> state) {
+      String yourPlayerId, String turnOfPlayerId, Map<String, Object> state) {
     // Our UI only looks at the current state
     // (we ignore: lastState, lastMovePlayerId, playerIdToNumberOfTokensInPot)
     return new UpdateUI(yourPlayerId, playersInfo, state,
         emptyState, // we ignore lastState
         ImmutableList.<Operation>of(new SetTurn(turnOfPlayerId)),
-        0,
-        ImmutableMap.<Integer, Integer>of());
+        null,
+        ImmutableMap.<String, Integer>of());
   }
 }

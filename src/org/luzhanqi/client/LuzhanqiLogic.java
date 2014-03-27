@@ -6,14 +6,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.luzhanqi.client.GameApi.Delete;
-import org.luzhanqi.client.GameApi.EndGame;
-import org.luzhanqi.client.GameApi.Operation;
-import org.luzhanqi.client.GameApi.Set;
-import org.luzhanqi.client.GameApi.SetTurn;
-import org.luzhanqi.client.GameApi.SetVisibility;
-import org.luzhanqi.client.GameApi.VerifyMove;
-import org.luzhanqi.client.GameApi.VerifyMoveDone;
+import org.game_api.GameApi.Delete;
+import org.game_api.GameApi.EndGame;
+import org.game_api.GameApi.Operation;
+import org.game_api.GameApi.Set;
+import org.game_api.GameApi.SetTurn;
+import org.game_api.GameApi.SetVisibility;
+import org.game_api.GameApi.VerifyMove;
+import org.game_api.GameApi.VerifyMoveDone;
 import org.luzhanqi.client.Piece.PieceType;
 import org.luzhanqi.client.Slot.SlotType;
 
@@ -27,7 +27,7 @@ public class LuzhanqiLogic {
    *   turn, MOVE/DEPLOY, BOARD, W, B, D
    * When we send operations on these keys, it will always be in the above order.
    */
-  private static final int sId = 1; // turn S dummy id
+  private static final String sId = "1"; // turn S dummy id
   private static final String W = "W"; // White hand
   private static final String B = "B"; // Black hand
   private static final String D = "D"; // Middle pile
@@ -59,13 +59,13 @@ public class LuzhanqiLogic {
     // first MakeMove we'll send SetTurn which will guarantee the correct player send MakeMove).
     if (lastState.isEmpty()) {
       //in luzhanqi black player initial the board
-      check(verifyMove.getLastMovePlayerId() == verifyMove.getPlayerIds().get(1));
+      check(verifyMove.getLastMovePlayerId().equals(verifyMove.getPlayerIds().get(1)));
     }
   }
 
   /** Returns the operations for deploy pieces. */
   List<Operation> deployPiecesMove(LuzhanqiState state, List<Integer> deployList,
-    List<Integer> playerIds, int lastMovePlayerId) {
+    List<String> playerIds, String lastMovePlayerId) {
     /**
      * deploy pieces
      * 0) new SetTurn(BId)
@@ -83,7 +83,7 @@ public class LuzhanqiLogic {
       operations.add(new SetTurn(state.getPlayerId(Turn.B)));
     operations.add(new Set(DEPLOY, DEPLOY));
     //BLACK deploy
-    if (state.getPlayerId(Turn.B) == lastMovePlayerId){
+    if (state.getPlayerId(Turn.B).equals(lastMovePlayerId)){
       //empty CAMPSITE
       check(deployList.get(6) == -1,"campsite must be empty");
       check(deployList.get(8) == -1,"campsite must be empty");
@@ -162,7 +162,7 @@ public class LuzhanqiLogic {
    *  Move operation {MOVE,[1,2]} means move pieces from slot1 to slot2
    */
   List<Operation> normalMove(LuzhanqiState state, List<Integer> board, 
-      List<Integer> pieceMove, List<Integer> playerIds) {
+      List<Integer> pieceMove, List<String> playerIds) {
     /**
      *  Normal move
      *  0) new SetTurn(oppoId)
@@ -436,8 +436,8 @@ public class LuzhanqiLogic {
    */
   @SuppressWarnings("unchecked")
   List<Operation> getExpectedOperations(
-      Map<String, Object> lastApiState, List<Operation> lastMove, List<Integer> playerIds,
-      int lastMovePlayerId) {
+      Map<String, Object> lastApiState, List<Operation> lastMove, List<String> playerIds,
+      String lastMovePlayerId) {
     if (lastApiState.isEmpty()) {
       return getInitialMove(playerIds);
     }
@@ -464,9 +464,9 @@ public class LuzhanqiLogic {
     }
   }
 
-  List<Operation> getInitialMove(List<Integer> playerIds){
-    int whitePlayerId = playerIds.get(0);
-    int blackPlayerId = playerIds.get(1);
+  List<Operation> getInitialMove(List<String> playerIds){
+    String whitePlayerId = playerIds.get(0);
+    String blackPlayerId = playerIds.get(1);
     List<Operation> operations = Lists.newArrayList();
     /**
      *  Initial move
@@ -511,7 +511,7 @@ public class LuzhanqiLogic {
 
   @SuppressWarnings("unchecked")
   LuzhanqiState gameApiStateToLuzhanqiState(Map<String, Object> gameApiState,
-      Turn turn, List<Integer> playerIds) {
+      Turn turn, List<String> playerIds) {
     if(gameApiState.isEmpty()){
       return null;
     }

@@ -1,7 +1,5 @@
-package org.luzhanqi.client;
-/**
- * written by Prof Zibin
- */
+package org.game_api;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.fail;
@@ -11,23 +9,24 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.luzhanqi.client.GameApi.AttemptChangeTokens;
-import org.luzhanqi.client.GameApi.EndGame;
-import org.luzhanqi.client.GameApi.GameReady;
-import org.luzhanqi.client.GameApi.Message;
-import org.luzhanqi.client.GameApi.MakeMove;
-import org.luzhanqi.client.GameApi.ManipulateState;
-import org.luzhanqi.client.GameApi.ManipulationDone;
-import org.luzhanqi.client.GameApi.Operation;
-import org.luzhanqi.client.GameApi.RequestManipulator;
-import org.luzhanqi.client.GameApi.Set;
-import org.luzhanqi.client.GameApi.SetRandomInteger;
-import org.luzhanqi.client.GameApi.SetTurn;
-import org.luzhanqi.client.GameApi.SetVisibility;
-import org.luzhanqi.client.GameApi.Shuffle;
-import org.luzhanqi.client.GameApi.UpdateUI;
-import org.luzhanqi.client.GameApi.VerifyMove;
-import org.luzhanqi.client.GameApi.VerifyMoveDone;
+import org.luzhanqi.client.Turn;
+import org.game_api.GameApi.AttemptChangeTokens;
+import org.game_api.GameApi.EndGame;
+import org.game_api.GameApi.GameReady;
+import org.game_api.GameApi.MakeMove;
+import org.game_api.GameApi.ManipulateState;
+import org.game_api.GameApi.ManipulationDone;
+import org.game_api.GameApi.Message;
+import org.game_api.GameApi.Operation;
+import org.game_api.GameApi.RequestManipulator;
+import org.game_api.GameApi.Set;
+import org.game_api.GameApi.SetRandomInteger;
+import org.game_api.GameApi.SetTurn;
+import org.game_api.GameApi.SetVisibility;
+import org.game_api.GameApi.Shuffle;
+import org.game_api.GameApi.UpdateUI;
+import org.game_api.GameApi.VerifyMove;
+import org.game_api.GameApi.VerifyMoveDone;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -49,24 +48,26 @@ public class GameApiTest {
 
   List<Message> messages =
       Arrays.<Message>asList(
-          new UpdateUI(42, playersInfo, state, lastState, operations, 12, ImmutableMap.of(42, 1)),
-          new VerifyMove(playersInfo, state, lastState, operations, 23, ImmutableMap.of(42, 33)),
+          new UpdateUI("42", playersInfo, state, lastState, operations, "12",
+              ImmutableMap.of("42", 1)),
+          new VerifyMove(playersInfo, state, lastState, operations, "23",
+              ImmutableMap.of("42", 33)),
           set, setRandomInteger,
-          new EndGame(32),
-          new EndGame(ImmutableMap.of(42, -1232, 43, -5454)),
+          new EndGame("32"),
+          new EndGame(ImmutableMap.of("42", -1232, "43", -5454)),
           new SetVisibility("sd"),
           new Shuffle(Lists.newArrayList("xzc", "zxc")),
           new GameReady(),
           new MakeMove(operations),
           new VerifyMoveDone(),
-          new VerifyMoveDone(23, "asd"),
+          new VerifyMoveDone("23", "asd"),
           new RequestManipulator(),
           new ManipulateState(state),
           new ManipulationDone(operations),
-          new SetTurn(41),
-          new SetTurn(41, 23),
-          new AttemptChangeTokens(ImmutableMap.of(42, -1232, 43, -5454),
-              ImmutableMap.of(42, 1232, 43, 5454))
+          new SetTurn("41"),
+          new SetTurn("41", 23),
+          new AttemptChangeTokens(ImmutableMap.of("42", -1232, "43", -5454),
+              ImmutableMap.of("42", 1232, "43", 5454))
           );
 
   @Test
