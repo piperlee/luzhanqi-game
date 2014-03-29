@@ -32,7 +32,7 @@ public final class PieceImage extends Equality {
   }
 
   public final PieceImageKind kind;
-  public final Piece piece;
+  public Piece piece;
   public final Slot slot;
 
   private PieceImage(PieceImageKind kind, Piece piece, Slot slot) {

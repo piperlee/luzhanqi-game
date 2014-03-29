@@ -19,25 +19,27 @@
         gwt-image: "gameboard";
     }
   </ui:style>
-  <g:HorizontalPanel>
-    <g:HTMLPanel>
-      <div class="{css.back}">
-      <g:Grid ui:field="gameGrid" styleName = "{css.grid}"/>
-      </div>
-    </g:HTMLPanel>  
-    <g:VerticalPanel>
-      <g:VerticalPanel width="500px" height="330px">
-          <g:Label ui:field="curTurn" text="Current Turn:"/>
-          <g:TextArea ui:field="note" />
-      </g:VerticalPanel>
-      <g:HorizontalPanel>
-        <g:Button ui:field="moveBtn" text="Confirm Move"/>
-        <g:Button ui:field="deployBtn" text="Finish Deploy"/>        
-        <!-- test button -->
-        <g:Button ui:field="quickDeploy" text="Quick Deploy"/>
-      </g:HorizontalPanel>
-      <g:Grid ui:field="deployGrid" />
-    </g:VerticalPanel>
-   </g:HorizontalPanel>
+  <g:AbsolutePanel>
+    <g:HorizontalPanel>
+      <g:HTMLPanel>
+        <div class="{css.back}">
+          <g:Grid ui:field="gameGrid" styleName = "{css.grid}"/>
+        </div>
+      </g:HTMLPanel>  
+	    <g:VerticalPanel>
+	      <g:VerticalPanel width="500px" height="330px">
+	          <g:Label ui:field="curTurn" text="Current Turn:"/>
+	          <g:TextArea ui:field="note" />
+	      </g:VerticalPanel>
+	      <g:HorizontalPanel>
+	        <g:Button ui:field="moveBtn" text="Confirm Move"/>
+	        <g:Button ui:field="deployBtn" text="Finish Deploy"/>        
+	        <!-- test button -->
+	        <g:Button ui:field="quickDeploy" text="Quick Deploy"/>
+	      </g:HorizontalPanel>
+	      <g:Grid ui:field="deployGrid" />
+	     </g:VerticalPanel>
+	   </g:HorizontalPanel>
+   </g:AbsolutePanel>
   
 </ui:UiBinder> 

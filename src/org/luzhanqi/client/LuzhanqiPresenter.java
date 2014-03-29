@@ -83,6 +83,14 @@ public class LuzhanqiPresenter {
      * 
      */  
     void nextFromTo(List<Slot> fromTo);
+    
+    // Play the sound effect associated with moving a piece to an empty
+    // square
+    void playPieceDownSound();
+
+    // Play the sound effect associated with moving a piece to an occupied
+    // square
+    void playPieceCapturedSound();
   }
 
   private final LuzhanqiLogic luzhanqiLogic = new LuzhanqiLogic();
@@ -307,8 +315,14 @@ public class LuzhanqiPresenter {
    * {@link View#deployNextPiece(Map)}.
    */  
   public void pieceDeploy(Piece piece, Slot slot){
-    check(isSTurn());
-    check(validDeployPosition(piece,slot));
+    try {
+      check(isSTurn());
+      check(validDeployPosition(piece,slot));
+    } catch (Exception e) {
+      if (piece != null) {
+        return;
+      }
+    }
     if(deployMap.containsKey(piece)){
       //double click: put back to deploy grid
       if(deployMap.get(piece).equals(slot)){
