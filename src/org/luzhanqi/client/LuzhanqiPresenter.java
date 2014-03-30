@@ -325,23 +325,31 @@ public class LuzhanqiPresenter {
     }
     if(deployMap.containsKey(piece)){
       //double click: put back to deploy grid
-      if(deployMap.get(piece).equals(slot)){
+      if(deployMap.get(piece).equals(slot)){ 
+        //change piece slot cross ref
         slot.setEmpty();
+        piece.setSlot(-1);
         lastDeploy.clear();
         lastDeploy.put(piece, Optional.<Slot>fromNullable(null));
-        deployMap.remove(piece);
+        deployMap.remove(piece);                
       }else{
+        //change a piece on game board to another slot
         if(!deployMap.containsValue(slot)){
+          //change piece slot cross ref
           deployMap.get(piece).setEmpty();
           slot.setPiece(piece);
+          piece.setSlot(slot.getKey());
           lastDeploy.clear();
           lastDeploy.put(piece, Optional.<Slot>of(slot));
           deployMap.put(piece, slot);
         }
       }
-    }else{ //new to game grid
+    }else{ 
+      //new to game grid
       if(!deployMap.containsValue(slot)){
+        //change piece slot cross ref
         slot.setPiece(piece);
+        piece.setSlot(slot.getKey());
         lastDeploy.clear();
         lastDeploy.put(piece, Optional.<Slot>of(slot));
         deployMap.put(piece, slot);

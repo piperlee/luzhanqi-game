@@ -15,6 +15,9 @@
 
   <!-- PlayN related module inherits   tripleplay.TriplePlay      -->
 
+  <!-- gwt-dnd -->
+  <inherits name='com.allen_sauer.gwt.dnd.gwt-dnd'/>
+  
   <!-- Specify the app entry point class.                         -->
   <entry-point class='org.luzhanqi.graphics.LuzhanqiEntryPoint'/>
 

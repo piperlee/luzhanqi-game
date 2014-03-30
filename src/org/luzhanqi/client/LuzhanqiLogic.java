@@ -101,6 +101,7 @@ public class LuzhanqiLogic {
             , "illegal landmine/bomb position");
       }
       operations.add(new Set(DB,deployList));
+      //operations.add(new SetVisibility(DB,ImmutableList.of(state.getPlayerId(Turn.B))));
     }//WHITE deploy
     else{
       //empty CAMPSITE
@@ -120,6 +121,7 @@ public class LuzhanqiLogic {
             , "illegal landmine/bomb position");
       }
       operations.add(new Set(DW,deployList));
+      //operations.add(new SetVisibility(DW,ImmutableList.of(state.getPlayerId(Turn.W))));
     }
     operations.add(new Set(W, state.getWhite()));
     operations.add(new Set(B, state.getBlack()));

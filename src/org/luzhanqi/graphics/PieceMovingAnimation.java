@@ -11,6 +11,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.SimplePanel;
 
 public class PieceMovingAnimation extends Animation {
 
@@ -20,7 +21,8 @@ public class PieceMovingAnimation extends Animation {
   Grid deployGrid;
   Grid gameGrid;
   AbsolutePanel panel;
-  Image start, end, moving;
+  Image start, moving;
+  SimplePanel startPanel, endPanel;
   ImageResource piece, transform;
   int startX, startY, startWidth, startHeight;
   int endX, endY;
@@ -31,10 +33,11 @@ public class PieceMovingAnimation extends Animation {
   boolean isNormalMove = false;
 
   public PieceMovingAnimation(Grid gameGrid, Grid deployGrid, Piece from, Slot to, 
-      Image startImage, Image endImage, Audio sfx) {
+       SimplePanel startPanel, SimplePanel endPanel, Audio sfx) {
     isDeployed = true;
-    start = startImage;
-    end = endImage;
+    this.startPanel = startPanel;
+    start = (Image)startPanel.getWidget();
+    this.endPanel = endPanel;
     piece = supplier.getPieceImage(from);
     transform = to.emptySlot() ? piece : piece;
     if (from.getPlayer() == Turn.W) {
@@ -44,15 +47,16 @@ public class PieceMovingAnimation extends Animation {
       startX = deployGrid.getWidget((from.getKey()-25)/5, from.getKey()%5).getAbsoluteLeft();
       startY = deployGrid.getWidget((from.getKey()-25)/5, from.getKey()%5).getAbsoluteTop();
     }
-    startWidth = startImage.getWidth();
-    startHeight = startImage.getHeight();
+    startWidth = start.getWidth();
+    startHeight = start.getHeight();
     panel = (AbsolutePanel) gameGrid.getParent().getParent().getParent();
     endX = gameGrid.getWidget(to.getKey()/5, to.getKey()%5).getAbsoluteLeft();
     endY = gameGrid.getWidget(to.getKey()/5, to.getKey()%5).getAbsoluteTop();
     soundAtEnd = sfx;
     cancelled = false;
 
-    start.setResource(supplier.getEmpty());
+    //start.setResource(supplier.getEmpty());
+    startPanel.clear();
     moving = new Image(piece);
     moving.setPixelSize(startWidth, startHeight);
 
@@ -60,25 +64,27 @@ public class PieceMovingAnimation extends Animation {
   }
 
   public PieceMovingAnimation(Grid gameGrid, Slot from, Slot to,
-      Image startImage, Image endImage, Audio sfx) {
+      SimplePanel startPanel, SimplePanel endPanel, Audio sfx) {
     isNormalMove = true;
-    start = startImage;
-    end = endImage;
+    this.startPanel = startPanel;
+    start = (Image)startPanel.getWidget();
+    this.endPanel = endPanel;
     
     piece = supplier.getPieceImage(from.getPiece());
     transform = to.emptySlot() ? piece : piece;
     
     startX = gameGrid.getWidget(from.getKey()/5, from.getKey()%5).getAbsoluteLeft();
     startY = gameGrid.getWidget(from.getKey()/5, from.getKey()%5).getAbsoluteTop();
-    startWidth = startImage.getWidth();
-    startHeight = startImage.getHeight();
+    startWidth = start.getWidth();
+    startHeight = start.getHeight();
     panel = (AbsolutePanel) gameGrid.getParent().getParent().getParent();
     endX = gameGrid.getWidget(to.getKey()/5, to.getKey()%5).getAbsoluteLeft();
     endY = gameGrid.getWidget(to.getKey()/5, to.getKey()%5).getAbsoluteTop();
     soundAtEnd = sfx;
     cancelled = false;
 
-    start.setResource(supplier.getEmpty());
+    //start.setResource(supplier.getEmpty());
+    startPanel.clear();
     moving = new Image(piece);
     moving.setPixelSize(startWidth, startHeight);
 
@@ -113,7 +119,10 @@ public class PieceMovingAnimation extends Animation {
       if (soundAtEnd != null) {
         soundAtEnd.play();
       }
-      end.setResource(transform);
+      //endPanel.add(new Image(transform));
+      startPanel.clear();
+      endPanel.clear();
+      endPanel.add(start);
       panel.remove(moving);
       isDeployed = false;
       isNormalMove = false;

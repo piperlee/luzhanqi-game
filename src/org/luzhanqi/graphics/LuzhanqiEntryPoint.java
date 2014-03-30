@@ -11,9 +11,14 @@ import org.game_api.GameApi.VerifyMove;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -44,8 +49,6 @@ public class LuzhanqiEntryPoint implements EntryPoint {
     playerSelect.addItem("BlackPlayer");   
     playerSelect.addItem("Viewer");
     playerSelect.setSelectedIndex(1);
-   // playerSelect.addItem("WhitePlayerDeploy");
-   // playerSelect.addItem("BlackPlayerDeploy");
     playerSelect.addChangeHandler(new ChangeHandler() {
       @Override
       public void onChange(ChangeEvent event) {
@@ -56,8 +59,26 @@ public class LuzhanqiEntryPoint implements EntryPoint {
       }
     });
     FlowPanel flowPanel = new FlowPanel();
+    
+//    SimplePanel p = new SimplePanel();
+//    p.sinkEvents(Event.ONCLICK);
+//    p.setTitle("Click me");
+//    p.setSize("60px", "60px");
+//    p.addHandler(new ClickHandler(){
+//
+//        @Override
+//        public void onClick(ClickEvent event) {
+//
+//            Window.alert("SimplePanel clicked!");
+//
+//        }
+//
+//    }, ClickEvent.getType());
+//    flowPanel.add(p);
     flowPanel.add(playerSelect);
     flowPanel.add(luzhanqiGraphics);    
+    
+    
     RootPanel.get("mainDiv").add(flowPanel);
     container.sendGameReady();
     //black start
