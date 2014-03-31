@@ -256,8 +256,18 @@ public class LuzhanqiPresenter {
     return luzhanqiLogic.fromIsValid(luzhanqiState, from);
   }
   
+  public boolean deployValid (int pieceKey, int slotKey) {
+    Piece piece = new Piece (pieceKey,-1);
+    Slot slot = new Slot (slotKey,-1);
+    try {
+      validDeployPosition(piece,slot);
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
+    return true;
+  }
   // check if a slot is valid deploy slot
-  private boolean validDeployPosition(Piece piece, Slot slot){
+  private boolean validDeployPosition(Piece piece, Slot slot) throws IllegalArgumentException{
     if (myTurn.get() == Turn.B){
       //deploy their own piece
       check(piece.getKey()>24 && piece.getKey()<50);
@@ -303,7 +313,7 @@ public class LuzhanqiPresenter {
     return true;
   }
 
-  private void check(boolean val) {
+  private void check(boolean val) throws IllegalArgumentException{
     if (!val) {
       throw new IllegalArgumentException();
     }

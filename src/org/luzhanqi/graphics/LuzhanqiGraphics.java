@@ -11,7 +11,7 @@ import org.luzhanqi.client.Slot;
 import org.luzhanqi.client.Turn;
 
 import com.allen_sauer.gwt.dnd.client.DragContext;
-import com.allen_sauer.gwt.dnd.client.DragController;
+import com.allen_sauer.gwt.dnd.client.DragEndEvent;
 import com.allen_sauer.gwt.dnd.client.DragHandler;
 import com.allen_sauer.gwt.dnd.client.DragHandlerAdapter;
 import com.allen_sauer.gwt.dnd.client.DragStartEvent;
@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.dom.client.AudioElement;
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
@@ -34,7 +33,6 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
@@ -148,7 +146,6 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
         SimpleDropController dropController = new SimpleDropController(target) {
           @Override
           public void onDrop(DragContext context) {
-            //TODO
             //deploy phase
             if (selectedPiece!=null) {              
               //from deploy board to game board
@@ -170,7 +167,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
               }
             } 
             //normal move
-            else if (selectedFromImage!=null) {
+            if (selectedFromSlot!=null && selectedToSlot == null) {
               int slotKey = row * GAME_COL + col;
               Slot slot = presenter.getState().getBoard().get(slotKey);
               // target is empty or is taken by opponent's piece
@@ -180,9 +177,6 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
                   moveBtn.setEnabled(true);
                   selectedFromImage.removeStyleName(css.highlighted());
                   selectedToSlot = slot;
-                  if (!slot.emptySlot()) {
-                    selectedToImage = (Image)target.getWidget();
-                  }
                   super.onDrop(context);
                 } 
               }              
@@ -192,8 +186,39 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
           
           @Override
           public void onPreviewDrop(DragContext context) throws VetoDragException {
-            if (target.getWidget() != null) {
-              throw new VetoDragException();
+            int slotKey = row * GAME_COL + col;
+            Slot slot = presenter.getState().getBoard().get(slotKey);
+            //Image image = (I)context.draggable
+            if (target.getWidget() != null) {             
+              // can not drop piece on one's own piece
+              if (!presenter.isSTurn()) {
+                if (presenter.isMyTurn() && selectedFromSlot != null
+                    && slot.getPiece().getPlayer() != presenter.getTurn()
+                    && presenter.toValid(selectedFromSlot, slot)
+                    && presenter.fromValid(selectedFromSlot)) {
+                    selectedToImage = (Image)target.getWidget();
+                    target.clear();
+                } else {
+                  isDrag = false;
+                  throw new VetoDragException();
+                }
+              } else { //deploy phase
+                isDrag = false;
+                throw new VetoDragException();
+              }
+            } else { // empty target
+              if ( presenter.isMyTurn() && selectedFromSlot != null) {
+                if (!presenter.toValid(selectedFromSlot, slot) 
+                    || !presenter.fromValid(selectedFromSlot)) {
+                  isDrag = false;
+                  throw new VetoDragException();
+                }
+              }
+              if (presenter.isSTurn() && selectedPiece!=null
+                  && !presenter.deployValid(selectedPiece.getKey(), slotKey)) {
+                isDrag = false;
+                throw new VetoDragException();
+              }
             }
             super.onPreviewDrop(context);
           }
@@ -221,6 +246,8 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
     note.setSize("445px", "300px");
     note.setText("Welcome to Game Luzhanqi!\n\n"
         + "Rules: http://en.wikipedia.org/wiki/Luzhanqi\n\n"
+        + "NEW:\n"
+        + "Animation, Sound, Drag and Drop\n\n"
         + "How to play:\n"
         + "1.Deploy Phase: each player deploy their own pieces on their own part of the board"
         + "(above half: white player; below half: black player). Click a piece then click a empty"
@@ -246,7 +273,6 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   }
 
   private void initializeDragnDrop() {
-    // TODO Auto-generated method stub
     dragHandler = new DragHandlerAdapter(){
       @Override
       public void onDragStart(DragStartEvent event) {
@@ -254,7 +280,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
         isDrag = true;
         //deploy phase
         if (presenter.isSTurn()) {
-          if (selectedPiece == null) {
+          if (selectedPiece == null || selectedPieceImage == image) {
             int pieceKey = getKeyFromDeployPanels(image,presenter.getTurn());
             selectedPiece = new Piece(pieceKey,-1);
             selectedPieceImage = image;
@@ -263,25 +289,33 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
         } 
         //normal move
         else if (presenter.isMyTurn()) {
-          if (selectedFromSlot == null) {
+          if (selectedFromSlot == null || selectedFromImage == image) {
             int slotKey = getSlotKeyFromGamePanels(image);
             selectedFromSlot = presenter.getState().getBoard().get(slotKey);
             selectedFromImage = image;
             image.setStyleName(css.highlighted());
           }
         }
-      } 
-      @Override
-      public void onPreviewDragStart(DragStartEvent event) {
-        Image image = (Image) event.getContext().draggable;
       }
+//      @Override
+//      public void onPreviewDragStart(DragStartEvent event) throws VetoDragException {
+//        if (presenter.isSTurn()) {
+//          
+//        } else if (presenter.isMyTurn()) {
+//          if (selectedFromSlot != null) {
+//            throw new VetoDragException();
+//          }
+//        } else {
+//          throw new VetoDragException();
+//        }
+//        super.onPreviewDragStart(event);
+//      }
     };
     
     dropHandler = new Dropper() {
       @Override
       public void onDrop(int row, int col) {
-        // TODO Auto-generated method stub
-        
+       
       }      
     };
   }
@@ -661,7 +695,9 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
             if (selectedToSlot == null) {
               // place piece onto, on empty or opponent's piece
               if (slot.emptySlot() || slot.getPiece().getPlayer() != t) {
-                if(selectedFromSlot != null && presenter.toValid(selectedFromSlot,slot)){            
+                if(selectedFromSlot != null 
+                    &&  presenter.fromValid(selectedFromSlot)
+                    && presenter.toValid(selectedFromSlot,slot)){            
                   presenter.moveSelected(selectedFromSlot,slot);
                   moveBtn.setEnabled(true);
                   selectedFromImage.removeStyleName(css.highlighted());
@@ -710,43 +746,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
             }         
           }            
         }, DoubleClickEvent.getType());
-        
-        //TODO 
-        final SimplePanel target = gamePanels[i][j];
-        final int row = i, col = j;
-        SimpleDropController dropController = new SimpleDropController(target) {
-          @Override
-          public void onDrop(DragContext context) {
-            if (selectedFromImage!=null) {
-              int slotKey = row * GAME_COL + col;
-              Slot slot = presenter.getState().getBoard().get(slotKey);
-              // target is empty or is taken by opponent's piece
-              if (slot.emptySlot() || slot.getPiece().getPlayer()!=presenter.getTurn()) {
-                if(selectedFromSlot != null && presenter.toValid(selectedFromSlot,slot)){            
-                  presenter.moveSelected(selectedFromSlot,slot);
-                  moveBtn.setEnabled(true);
-                  selectedFromImage.removeStyleName(css.highlighted());
-                  selectedToSlot = slot;
-                  if (!slot.emptySlot()) {
-                    selectedToImage = (Image)target.getWidget();
-                  }
-                  super.onDrop(context);
-                } 
-              }              
-            }
-            isDrag = false;
-          }
-          
-          @Override
-          public void onPreviewDrop(DragContext context) throws VetoDragException {
-            if (target.getWidget() != null) {
-              throw new VetoDragException();
-            }
-            super.onPreviewDrop(context);
-          }
-        };
-        dragController.setBehaviorDragStartSensitivity(3);
-        dragController.registerDropController(dropController);        
+     
       }
     }
   }
@@ -796,6 +796,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
         }
       }
     }
+    isDrag = false;
     // All 25 pieces are deployed
     deployBtn.setEnabled(!lastDeploy.isEmpty() && presenter.deployMap.size() == 25);
   }
@@ -820,6 +821,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
         animation.run(1000);
       }
     }
+    isDrag = false;
     moveEnable = true;
     moveBtn.setEnabled(!fromTo.isEmpty());
   }
