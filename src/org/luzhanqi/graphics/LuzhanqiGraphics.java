@@ -10,7 +10,14 @@ import org.luzhanqi.client.Piece;
 import org.luzhanqi.client.Slot;
 import org.luzhanqi.client.Turn;
 
+import com.allen_sauer.gwt.dnd.client.DragContext;
+import com.allen_sauer.gwt.dnd.client.DragController;
+import com.allen_sauer.gwt.dnd.client.DragHandler;
+import com.allen_sauer.gwt.dnd.client.DragHandlerAdapter;
+import com.allen_sauer.gwt.dnd.client.DragStartEvent;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
+import com.allen_sauer.gwt.dnd.client.VetoDragException;
+import com.allen_sauer.gwt.dnd.client.drop.SimpleDropController;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -21,12 +28,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
-import com.google.gwt.event.dom.client.DragOverEvent;
-import com.google.gwt.event.dom.client.DragOverHandler;
-import com.google.gwt.event.dom.client.DragStartEvent;
-import com.google.gwt.event.dom.client.DragStartHandler;
-import com.google.gwt.event.dom.client.DropEvent;
-import com.google.gwt.event.dom.client.DropHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.media.client.Audio;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -50,6 +51,9 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.View {
   public interface LuzhanqiGraphicsUiBinder extends UiBinder<Widget, LuzhanqiGraphics> {
+  }
+  public interface Dropper {
+    public abstract void onDrop(int row, int col);
   }
 
   public final static int GAME_ROW = 12;
@@ -88,6 +92,8 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   private boolean moveEnable = false;  
   private Piece selectedPiece;
   private Image selectedPieceImage;
+  private Slot targetSlot;
+  private Image targetImage;
   private Image doubleClickedImage;
   private Slot selectedFromSlot;
   private Image selectedFromImage;
@@ -97,10 +103,13 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   // Advanced Graphics
   private static GameSounds gameSounds;
   private PickupDragController dragController;
+  private DragHandler dragHandler;
+  private Dropper dropHandler;
   private AbsolutePanel abPanel;
   private PieceMovingAnimation animation;
   private Audio pieceDown;
   private Audio pieceCaptured;
+  private boolean isDrag = false;
   
   public LuzhanqiGraphics() {
     PieceImages pieceImages = GWT.create(PieceImages.class);
@@ -110,6 +119,11 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
     gameSounds = GWT.create(GameSounds.class);
     abPanel = (AbsolutePanel)gameGrid.getParent().getParent().getParent();
 
+    initializeDragnDrop();
+    dragController = new PickupDragController(abPanel, false);
+    dragController.setBehaviorDragStartSensitivity(3);
+    dragController.addDragHandler(dragHandler);
+    dragController.setBehaviorMultipleSelection(false);
     // setting initial game grid
     gameGrid.resize(GAME_ROW, GAME_COL);
     gameGrid.setCellPadding(0);
@@ -128,6 +142,63 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
         gameGrid.getCellFormatter().setWidth(i, j, "77px");   
         gamePanels[i][j] = new SimplePanel();
         gamePanels[i][j].setSize("77px", "38px");
+
+        final SimplePanel target = gamePanels[i][j];
+        final int row = i, col = j;
+        SimpleDropController dropController = new SimpleDropController(target) {
+          @Override
+          public void onDrop(DragContext context) {
+            //TODO
+            //deploy phase
+            if (selectedPiece!=null) {              
+              //from deploy board to game board
+              if(selectedPiece.getSlot()==-1 && enClick(row*GAME_COL+col,presenter.getTurn())) {                  
+                targetSlot = new Slot(row*GAME_COL+col,-1);
+                presenter.pieceDeploy(selectedPiece, targetSlot);
+                selectedPiece = null;
+                selectedPieceImage.removeStyleName(css.highlighted());
+                selectedPieceImage = null;
+                super.onDrop(context);
+              }
+              //back to deploy board
+              else if (selectedPiece.getSlot()==-1) {
+                int offset = selectedPiece.getPlayer() == Turn.B ? 25 : 0;
+                int row = (selectedPiece.getKey()-offset)/DEPLOY_COL;
+                int col = (selectedPiece.getKey()-offset)%DEPLOY_COL;
+                deployPanels[row][col].clear();
+                deployPanels[row][col].add(selectedPieceImage);
+              }
+            } 
+            //normal move
+            else if (selectedFromImage!=null) {
+              int slotKey = row * GAME_COL + col;
+              Slot slot = presenter.getState().getBoard().get(slotKey);
+              // target is empty or is taken by opponent's piece
+              if (slot.emptySlot() || slot.getPiece().getPlayer()!=presenter.getTurn()) {
+                if(selectedFromSlot != null && presenter.toValid(selectedFromSlot,slot)){            
+                  presenter.moveSelected(selectedFromSlot,slot);
+                  moveBtn.setEnabled(true);
+                  selectedFromImage.removeStyleName(css.highlighted());
+                  selectedToSlot = slot;
+                  if (!slot.emptySlot()) {
+                    selectedToImage = (Image)target.getWidget();
+                  }
+                  super.onDrop(context);
+                } 
+              }              
+            }
+            isDrag = false;
+          }
+          
+          @Override
+          public void onPreviewDrop(DragContext context) throws VetoDragException {
+            if (target.getWidget() != null) {
+              throw new VetoDragException();
+            }
+            super.onPreviewDrop(context);
+          }
+        };
+        dragController.registerDropController(dropController);
         gameGrid.setWidget(i, j, gamePanels[i][j]);
       }      
     }
@@ -171,11 +242,74 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
                       .asString(), AudioElement.TYPE_MP3);
       pieceCaptured.addSource(gameSounds.pieceCapturedWav().getSafeUri()
                       .asString(), AudioElement.TYPE_WAV);
-    }
-    
-    
+    }    
   }
 
+  private void initializeDragnDrop() {
+    // TODO Auto-generated method stub
+    dragHandler = new DragHandlerAdapter(){
+      @Override
+      public void onDragStart(DragStartEvent event) {
+        Image image = (Image) event.getContext().draggable;
+        isDrag = true;
+        //deploy phase
+        if (presenter.isSTurn()) {
+          if (selectedPiece == null) {
+            int pieceKey = getKeyFromDeployPanels(image,presenter.getTurn());
+            selectedPiece = new Piece(pieceKey,-1);
+            selectedPieceImage = image;
+            image.setStyleName(css.highlighted());
+          }
+        } 
+        //normal move
+        else if (presenter.isMyTurn()) {
+          if (selectedFromSlot == null) {
+            int slotKey = getSlotKeyFromGamePanels(image);
+            selectedFromSlot = presenter.getState().getBoard().get(slotKey);
+            selectedFromImage = image;
+            image.setStyleName(css.highlighted());
+          }
+        }
+      } 
+      @Override
+      public void onPreviewDragStart(DragStartEvent event) {
+        Image image = (Image) event.getContext().draggable;
+      }
+    };
+    
+    dropHandler = new Dropper() {
+      @Override
+      public void onDrop(int row, int col) {
+        // TODO Auto-generated method stub
+        
+      }      
+    };
+  }
+  
+  private int getKeyFromDeployPanels(Image image, Turn turn) {
+    for (int i = 0; i<DEPLOY_ROW; i++) {
+      for (int j = 0; j<DEPLOY_COL; j++) {
+        if (image.equals(deployPanels[i][j].getWidget())) {
+          return (turn == Turn.B) ? (i*DEPLOY_COL+j+25):(i*DEPLOY_COL+j);
+        }
+      }
+    }
+    return -1;
+  }
+  
+  private int getSlotKeyFromGamePanels(Image image) {
+    for (int i = 0; i<GAME_ROW; i++) {
+      for (int j = 0; j<GAME_COL; j++) {
+        if (image.equals(gamePanels[i][j].getWidget())) {
+          return i*GAME_COL+j;
+        }
+      }
+    }
+    return -1;
+  }  
+  
+//  private int getPieceKeyFromLePanels(Image image, Turn turn) {
+  
   private boolean enClick(int slotKey, Turn turn){
     ImmutableList<Integer> set = ImmutableList.<Integer>of(11,13,17,21,23,36,38,42,46,48);
     if (set.contains(slotKey)) return false;
@@ -191,8 +325,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
     deployEnable = false;
   }
   
-  private Image createSlotImage(Slot slot, 
-      boolean withClick, boolean withDrag, boolean withDrop){
+  private Image createSlotImage(Slot slot, boolean draggable){
     PieceImage pieceImage;
     if(slot == null)
       pieceImage = PieceImage.Factory.getEmpty();
@@ -204,14 +337,13 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
       }
     }
     Image image = new Image(pieceImageSupplier.getResource(pieceImage)); 
-//    if (withClick) addClick(image,pieceImage);
-//    if (withDrag) addDrag(image,pieceImage);
-//    if (withDrop) addDrop(image,pieceImage);
+    if (draggable) {
+      dragController.makeDraggable(image);
+    }
     return image;
   }
-  
-  private Image createPieceImage(Piece piece, 
-      boolean withClick, boolean withDrag, boolean withDrop){
+   
+  private Image createPieceImage(Piece piece, boolean draggable){
     PieceImage pieceImage;
     if(piece == null)
       pieceImage = PieceImage.Factory.getEmpty();
@@ -219,27 +351,19 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
       pieceImage = PieceImage.Factory.getPieceImage(piece,null);
     }
     Image image = new Image(pieceImageSupplier.getResource(pieceImage)); 
-//    if (withClick) addClick(image,pieceImage);
-//    if (withDrag) addDrag(image,pieceImage);
-//    if (withDrop) addDrop(image,pieceImage);
+    if (draggable) {
+      dragController.makeDraggable(image);
+    }
     return image;
   }
   
-  private List<Image> createImages(List<PieceImage> images, 
-      boolean withClick, boolean withDrag, boolean withDrop) {
+  private List<Image> createImages(List<PieceImage> images, boolean draggable) {
     List<Image> res = Lists.newArrayList();
     for (PieceImage img : images) {
-      final PieceImage imgFinal = img;
       Image image = new Image(pieceImageSupplier.getResource(img));
-//      if (withClick) {
-////        addClick(image,imgFinal);
-//      }
-//      if (withDrag) {
-//        addDrag(image,imgFinal);
-//      }
-//      if (withDrop) {
-//        addDrop(image,imgFinal);
-//      }
+      if (draggable) {
+        dragController.makeDraggable(image);
+      }
       res.add(image);
     }
     return res;
@@ -248,7 +372,6 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   private void setDeployPanelEmpty(int i, int j, boolean withClick){
     deployPanels[i][j].clear();
   }
-
 
   @UiHandler("deployBtn")
   void onClickDelployBtn(ClickEvent e) {
@@ -289,7 +412,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
           Piece piece = slot.getPiece(); 
           if(piece!=null){
             gamePanels[i][j].clear();
-            gamePanels[i][j].add(createSlotImage(slot,true,true,true));
+            gamePanels[i][j].add(createSlotImage(slot,true));
             presenter.deployMap.put(piece, slot);
           }
         }
@@ -301,7 +424,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
           Piece piece = slot.getPiece();
           if(piece!=null){
             gamePanels[i][j].clear();
-            gamePanels[i][j].add(createSlotImage(slot,true,true,true));
+            gamePanels[i][j].add(createSlotImage(slot,true));
             presenter.deployMap.put(piece, slot);
           }
         }
@@ -417,7 +540,17 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
                     gamePanels[slot.getKey()/GAME_COL][slot.getKey()%GAME_COL].getWidget();
                 presenter.pieceDeploy(piece, slot);
                 gamePanels[slot.getKey()/GAME_COL][slot.getKey()%GAME_COL].clear();
-              }           
+              } else {
+                if ( targetSlot!=null && !targetSlot.emptySlot()) {
+                  Piece piece = targetSlot.getPiece();
+                  //keep image info, use in deployNextPiece
+                  doubleClickedImage = (Image)
+                    gamePanels[targetSlot.getKey()/GAME_COL][targetSlot.getKey()%GAME_COL].getWidget();
+                  presenter.pieceDeploy(piece, targetSlot);
+                  gamePanels[targetSlot.getKey()/GAME_COL][targetSlot.getKey()%GAME_COL].clear();
+                  targetSlot = null;
+                }
+              }
             }            
           }, DoubleClickEvent.getType());
         }
@@ -433,7 +566,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
       else if(turn == Turn.B)
         pieceImages.add(PieceImage.Factory.getPieceImage(new Piece(i+25), null));
     }
-    List<Image> images = createImages(pieceImages,true,true,false);
+    List<Image> images = createImages(pieceImages,true);
     for(int i = 0; i< DEPLOY_ROW; i++){
       for(int j = 0; j< DEPLOY_COL; j++){
         deployPanels[i][j].clear();
@@ -477,7 +610,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
             Slot slot = new Slot(slotKey,pieceKey);
             if (!slot.emptySlot()) {
               gamePanels[i][j].clear();
-              gamePanels[i][j].add(createSlotImage(slot,false,false,false));
+              gamePanels[i][j].add(createSlotImage(slot,false));
             }
           }
         }
@@ -491,7 +624,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
             Slot slot = new Slot(slotKey,pieceKey);
             if (!slot.emptySlot()) {
               gamePanels[i][j].clear();
-              gamePanels[i][j].add(createSlotImage(slot,false,false,false));
+              gamePanels[i][j].add(createSlotImage(slot,false));
             }
           }
         }
@@ -500,17 +633,18 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   }
   
   private void setGamePanelsByBoard(List<Slot> board, Turn turn) {
+    
     for (int i = 0 ; i < GAME_ROW; i++) {
       for (int j = 0; j < GAME_COL; j++) {
         final Slot slot = board.get(i*GAME_COL+j);
         final Turn t = turn;
         if (!slot.emptySlot()) {
           if (slot.getPiece().getPlayer() == turn) {
-            Image image = createSlotImage(slot,true,true,false);
+            Image image = createSlotImage(slot,true);
             gamePanels[i][j].clear();
             gamePanels[i][j].add(image);
           } else {
-            Image image = createSlotImage(slot,true,false,true);
+            Image image = createSlotImage(slot,false);
             gamePanels[i][j].clear();
             gamePanels[i][j].add(image);
           }         
@@ -572,9 +706,47 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
               selectedToSlot = null;
               selectedToImage = null;
               moveBtn.setEnabled(false);
+              isDrag = false;
             }         
           }            
         }, DoubleClickEvent.getType());
+        
+        //TODO 
+        final SimplePanel target = gamePanels[i][j];
+        final int row = i, col = j;
+        SimpleDropController dropController = new SimpleDropController(target) {
+          @Override
+          public void onDrop(DragContext context) {
+            if (selectedFromImage!=null) {
+              int slotKey = row * GAME_COL + col;
+              Slot slot = presenter.getState().getBoard().get(slotKey);
+              // target is empty or is taken by opponent's piece
+              if (slot.emptySlot() || slot.getPiece().getPlayer()!=presenter.getTurn()) {
+                if(selectedFromSlot != null && presenter.toValid(selectedFromSlot,slot)){            
+                  presenter.moveSelected(selectedFromSlot,slot);
+                  moveBtn.setEnabled(true);
+                  selectedFromImage.removeStyleName(css.highlighted());
+                  selectedToSlot = slot;
+                  if (!slot.emptySlot()) {
+                    selectedToImage = (Image)target.getWidget();
+                  }
+                  super.onDrop(context);
+                } 
+              }              
+            }
+            isDrag = false;
+          }
+          
+          @Override
+          public void onPreviewDrop(DragContext context) throws VetoDragException {
+            if (target.getWidget() != null) {
+              throw new VetoDragException();
+            }
+            super.onPreviewDrop(context);
+          }
+        };
+        dragController.setBehaviorDragStartSensitivity(3);
+        dragController.registerDropController(dropController);        
       }
     }
   }
@@ -585,7 +757,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
         Slot slot = board.get(i*GAME_COL+j);
         gamePanels[i][j].clear();
         if (!slot.emptySlot()) {
-          Image image = createSlotImage(slot,false,false,false);
+          Image image = createSlotImage(slot,false);
           gamePanels[i][j].add(image);        
         }
         if (gpClick[i][j] != null ) {
@@ -610,12 +782,18 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
       //double click
       if (slot == null){        
         deployPanels[pieceRow][pieceCol].add(doubleClickedImage);
-      }else{        
+      }else{
         int slotRow = piece.getSlot()/GAME_COL;
         int slotCol = piece.getSlot()%GAME_COL;
-        animation = new PieceMovingAnimation(gameGrid, deployGrid,piece,slot,
-            deployPanels[pieceRow][pieceCol],gamePanels[slotRow][slotCol],pieceDown);
-        animation.run(1000);
+        if (isDrag) {
+          gamePanels[slotRow][slotCol].clear();
+          gamePanels[slotRow][slotCol].add(selectedPieceImage);
+          deployPanels[pieceRow][pieceCol].clear();
+        } else {
+          animation = new PieceMovingAnimation(gameGrid, deployGrid,piece,slot,
+              deployPanels[pieceRow][pieceCol],gamePanels[slotRow][slotCol],pieceDown);
+          animation.run(1000);
+        }
       }
     }
     // All 25 pieces are deployed
@@ -631,10 +809,16 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
       int fromCol = from.getKey()%GAME_COL;
       int toRow = to.getKey()/GAME_COL;
       int toCol = to.getKey()%GAME_COL;
-      Audio ad = to.emptySlot()? pieceDown : pieceCaptured;
-      animation = new PieceMovingAnimation(gameGrid,from,to,
-          gamePanels[fromRow][fromCol],gamePanels[toRow][toCol],ad);
-      animation.run(1000);
+      if (isDrag) {
+        gamePanels[fromRow][fromCol].clear();
+        gamePanels[toRow][toCol].clear();
+        gamePanels[toRow][toCol].add(selectedFromImage);
+      } else {
+        Audio ad = to.emptySlot()? pieceDown : pieceCaptured;
+        animation = new PieceMovingAnimation(gameGrid,from,to,
+            gamePanels[fromRow][fromCol],gamePanels[toRow][toCol],ad);
+        animation.run(1000);
+      }
     }
     moveEnable = true;
     moveBtn.setEnabled(!fromTo.isEmpty());
