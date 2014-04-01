@@ -11,7 +11,6 @@ import org.luzhanqi.client.Slot;
 import org.luzhanqi.client.Turn;
 
 import com.allen_sauer.gwt.dnd.client.DragContext;
-import com.allen_sauer.gwt.dnd.client.DragEndEvent;
 import com.allen_sauer.gwt.dnd.client.DragHandler;
 import com.allen_sauer.gwt.dnd.client.DragHandlerAdapter;
 import com.allen_sauer.gwt.dnd.client.DragStartEvent;
@@ -99,7 +98,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   private Image selectedToImage;
   
   // Advanced Graphics
-  private static GameSounds gameSounds;
+  private GameSounds gameSounds;
   private PickupDragController dragController;
   private DragHandler dragHandler;
   private Dropper dropHandler;
@@ -297,19 +296,6 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
           }
         }
       }
-//      @Override
-//      public void onPreviewDragStart(DragStartEvent event) throws VetoDragException {
-//        if (presenter.isSTurn()) {
-//          
-//        } else if (presenter.isMyTurn()) {
-//          if (selectedFromSlot != null) {
-//            throw new VetoDragException();
-//          }
-//        } else {
-//          throw new VetoDragException();
-//        }
-//        super.onPreviewDragStart(event);
-//      }
     };
     
     dropHandler = new Dropper() {
