@@ -154,6 +154,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
                 selectedPiece = null;
                 selectedPieceImage.removeStyleName(css.highlighted());
                 selectedPieceImage = null;
+                playPieceDownSound();
                 super.onDrop(context);
               }
               //back to deploy board
@@ -173,6 +174,11 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
               if (slot.emptySlot() || slot.getPiece().getPlayer()!=presenter.getTurn()) {
                 if(selectedFromSlot != null && presenter.toValid(selectedFromSlot,slot)){            
                   presenter.moveSelected(selectedFromSlot,slot);
+                  if (slot.emptySlot()) {
+                    playPieceDownSound();
+                  } else {
+                    playPieceCapturedSound();
+                  }
                   moveBtn.setEnabled(true);
                   selectedFromImage.removeStyleName(css.highlighted());
                   selectedToSlot = slot;
