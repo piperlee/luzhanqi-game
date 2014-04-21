@@ -18,6 +18,9 @@
   <!-- gwt-dnd -->
   <inherits name='com.allen_sauer.gwt.dnd.gwt-dnd'/>
   
+  <!-- gwt-voice -->
+  <inherits name='com.allen_sauer.gwt.voices.gwt-voices'/>
+  
   <!-- Specify the app entry point class.                         -->
   <entry-point class='org.luzhanqi.graphics.LuzhanqiEntryPoint'/>
 

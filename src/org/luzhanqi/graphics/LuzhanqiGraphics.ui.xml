@@ -21,25 +21,28 @@
   </ui:style>
   <g:AbsolutePanel>
     <g:HorizontalPanel>
+       <g:Label ui:field="curTurn" text="Current Turn:"/>
+       <g:Button ui:field="moveBtn" text="Confirm Move"/>
+       <g:Button ui:field="deployBtn" text="Finish Deploy"/>        
+       <!-- test button -->
+       <g:Button ui:field="quickDeploy" text="Quick Deploy"/>
+    </g:HorizontalPanel>    
+    <g:VerticalPanel>
       <g:HTMLPanel>
         <div class="{css.back}">
           <g:Grid ui:field="gameGrid" styleName = "{css.grid}"/>
         </div>
       </g:HTMLPanel>  
 	    <g:VerticalPanel>
-	      <g:VerticalPanel width="500px" height="330px">
+	      
+	      <!-- <g:VerticalPanel width="500px" height="330px">
 	          <g:Label ui:field="curTurn" text="Current Turn:"/>
-	          <g:TextArea ui:field="note" />
-	      </g:VerticalPanel>
-	      <g:HorizontalPanel>
-	        <g:Button ui:field="moveBtn" text="Confirm Move"/>
-	        <g:Button ui:field="deployBtn" text="Finish Deploy"/>        
-	        <!-- test button -->
-	        <g:Button ui:field="quickDeploy" text="Quick Deploy"/>
-	      </g:HorizontalPanel>
+	          <g:TextArea ui:field="note" /> 
+	      </g:VerticalPanel>  -->
+	      
 	      <g:Grid ui:field="deployGrid" />
 	     </g:VerticalPanel>
-	   </g:HorizontalPanel>
+	   </g:VerticalPanel>
    </g:AbsolutePanel>
   
 </ui:UiBinder> 

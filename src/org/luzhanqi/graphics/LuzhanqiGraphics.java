@@ -17,6 +17,8 @@ import com.allen_sauer.gwt.dnd.client.DragStartEvent;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.VetoDragException;
 import com.allen_sauer.gwt.dnd.client.drop.SimpleDropController;
+import com.allen_sauer.gwt.voices.client.Sound;
+import com.allen_sauer.gwt.voices.client.SoundController;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -73,8 +75,8 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   Label curTurn;
   @UiField
   GameCSS css;
-  @UiField
-  TextArea note;
+//  @UiField
+//  TextArea note;
   
   //setting SimplePanel
   SimplePanel [][] gamePanels = new SimplePanel[GAME_ROW][GAME_COL];
@@ -107,7 +109,12 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   private Audio pieceDown;
   private Audio pieceCaptured;
   private boolean isDrag = false;
+  private SoundController soundController;
+  private Sound mobilePieceDown;
+  private Sound mobilePieceCaptured;
   
+ 
+  @SuppressWarnings("deprecation")
   public LuzhanqiGraphics() {
     PieceImages pieceImages = GWT.create(PieceImages.class);
     this.pieceImageSupplier = new PieceImageSupplier(pieceImages);
@@ -115,6 +122,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
     initWidget(uiBinder.createAndBindUi(this));
     gameSounds = GWT.create(GameSounds.class);
     abPanel = (AbsolutePanel)gameGrid.getParent().getParent().getParent();
+    SoundController soundController = new SoundController();
 
     initializeDragnDrop();
     dragController = new PickupDragController(abPanel, false);
@@ -247,20 +255,20 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
       }
     }
     //add text note
-    note.setReadOnly(true);
-    note.setSize("445px", "300px");
-    note.setText("Welcome to Game Luzhanqi!\n\n"
-        + "Rules: http://en.wikipedia.org/wiki/Luzhanqi\n\n"
-        + "NEW:\n"
-        + "Animation, Sound, Drag and Drop\n\n"
-        + "How to play:\n"
-        + "1.Deploy Phase: each player deploy their own pieces on their own part of the board"
-        + "(above half: white player; below half: black player). Click a piece then click a empty"
-        + "slot, double click to undo, need to complete all 25 pieces, 'Finish Deploy' button will"
-        + "be able. 'Quick Delpoy' will delploy all, and is for test purpose.\n"
-        + "2.Game Phase: after both players finishing their deploy, game starts. Click a piece then to some "
-        + "position, which will lead to piece-fight or just move. Double click highlight piece "
-        + "will undo move. Click 'Confirm Move' button to finish a move.");
+//    note.setReadOnly(true);
+//    note.setSize("445px", "300px");
+//    note.setText("Welcome to Game Luzhanqi!\n\n"
+//        + "Rules: http://en.wikipedia.org/wiki/Luzhanqi\n\n"
+//        + "NEW:\n"
+//        + "Animation, Sound, Drag and Drop\n\n"
+//        + "How to play:\n"
+//        + "1.Deploy Phase: each player deploy their own pieces on their own part of the board"
+//        + "(above half: white player; below half: black player). Click a piece then click a empty"
+//        + "slot, double click to undo, need to complete all 25 pieces, 'Finish Deploy' button will"
+//        + "be able. 'Quick Delpoy' will delploy all, and is for test purpose.\n"
+//        + "2.Game Phase: after both players finishing their deploy, game starts. Click a piece then to some "
+//        + "position, which will lead to piece-fight or just move. Double click highlight piece "
+//        + "will undo move. Click 'Confirm Move' button to finish a move.");
     
     //add Audio
     if (Audio.isSupported()) {
@@ -269,12 +277,22 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
                       .asString(), AudioElement.TYPE_MP3);
       pieceDown.addSource(gameSounds.pieceDownWav().getSafeUri()
                       .asString(), AudioElement.TYPE_WAV);
+      pieceDown.addSource(gameSounds.pieceDownOgg().getSafeUri()
+                      .asString(), AudioElement.TYPE_OGG);
       pieceCaptured = Audio.createIfSupported();
       pieceCaptured.addSource(gameSounds.pieceCapturedMp3().getSafeUri()
                       .asString(), AudioElement.TYPE_MP3);
       pieceCaptured.addSource(gameSounds.pieceCapturedWav().getSafeUri()
                       .asString(), AudioElement.TYPE_WAV);
+      pieceCaptured.addSource(gameSounds.pieceCapturedOgg().getSafeUri()
+                      .asString(), AudioElement.TYPE_OGG);
     }    
+    
+    // add mobile sound
+    mobilePieceDown = soundController.createSound(
+        Sound.MIME_TYPE_AUDIO_MPEG,"sounds/pieceDown.mp3");
+    mobilePieceCaptured = soundController.createSound(
+        Sound.MIME_TYPE_AUDIO_MPEG,"sounds/pieceCaptured.mp3");
   }
 
   private void initializeDragnDrop() {
@@ -341,6 +359,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
     if (set.contains(slotKey)) return false;
     if (turn == Turn.B && slotKey < 30) return false;
     if (turn == Turn.W && slotKey > 29) return false;
+    if (presenter.deployMap.containsValue(slotKey)) return false;
     return true;
   }
   
@@ -782,8 +801,10 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
           gamePanels[slotRow][slotCol].add(selectedPieceImage);
           deployPanels[pieceRow][pieceCol].clear();
         } else {
+//          animation = new PieceMovingAnimation(gameGrid, deployGrid,piece,slot,
+//              deployPanels[pieceRow][pieceCol],gamePanels[slotRow][slotCol],pieceDown);
           animation = new PieceMovingAnimation(gameGrid, deployGrid,piece,slot,
-              deployPanels[pieceRow][pieceCol],gamePanels[slotRow][slotCol],pieceDown);
+              deployPanels[pieceRow][pieceCol],gamePanels[slotRow][slotCol],mobilePieceDown);
           animation.run(1000);
         }
       }
@@ -807,7 +828,8 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
         gamePanels[toRow][toCol].clear();
         gamePanels[toRow][toCol].add(selectedFromImage);
       } else {
-        Audio ad = to.emptySlot()? pieceDown : pieceCaptured;
+        //Audio ad = to.emptySlot()? pieceDown : pieceCaptured;
+        Sound ad = to.emptySlot()? mobilePieceDown : mobilePieceCaptured;
         animation = new PieceMovingAnimation(gameGrid,from,to,
             gamePanels[fromRow][fromCol],gamePanels[toRow][toCol],ad);
         animation.run(1000);
@@ -818,17 +840,31 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
     moveBtn.setEnabled(!fromTo.isEmpty());
   }
   
+//  @Override
+//  public void playPieceDownSound() {
+//    if (pieceDown != null) {
+//      pieceDown.play();
+//    }
+//  }
+//
+//  @Override
+//  public void playPieceCapturedSound() {
+//    if (pieceCaptured != null) {
+//      pieceCaptured.play();
+//    }
+//  }
+  
   @Override
   public void playPieceDownSound() {
-    if (pieceDown != null) {
-      pieceDown.play();
+    if (mobilePieceDown != null) {
+      mobilePieceDown.play();
     }
   }
 
   @Override
   public void playPieceCapturedSound() {
-    if (pieceCaptured != null) {
-      pieceCaptured.play();
+    if (mobilePieceCaptured != null) {
+      mobilePieceCaptured.play();
     }
   }
 }

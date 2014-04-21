@@ -9,10 +9,16 @@ public interface GameSounds extends ClientBundle {
 
   @Source("sounds/pieceCaptured.wav")
   DataResource pieceCapturedWav();
+  
+  @Source("sounds/pieceCaptured.ogg")
+  DataResource pieceCapturedOgg();
 
   @Source("sounds/pieceDown.mp3")
   DataResource pieceDownMp3();
 
   @Source("sounds/pieceDown.wav")
   DataResource pieceDownWav();
+  
+  @Source("sounds/pieceDown.ogg")
+  DataResource pieceDownOgg();
 }
