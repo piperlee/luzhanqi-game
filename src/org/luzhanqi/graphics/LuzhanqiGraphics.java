@@ -115,6 +115,8 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   private Sound mobilePieceDown;
   private Sound mobilePieceCaptured;
   
+  // messages
+  private GameMessages messages;
  
   @SuppressWarnings("deprecation")
   public LuzhanqiGraphics() {
@@ -122,11 +124,17 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
     this.pieceImageSupplier = new PieceImageSupplier(pieceImages);
     LuzhanqiGraphicsUiBinder uiBinder = GWT.create(LuzhanqiGraphicsUiBinder.class);
     initWidget(uiBinder.createAndBindUi(this));
+    messages = (GameMessages)GWT.create(GameMessages.class);
     gameSounds = GWT.create(GameSounds.class);
 //    abPanel = (AbsolutePanel)gameGrid.getParent().getParent().getParent();
     abPanel.setPixelSize(460, 920);
     SoundController soundController = new SoundController();
 
+    // initialize button text
+    deployBtn.setText(messages.finishDeploy());
+    moveBtn.setText(messages.confirmMove());
+    quickDeploy.setText(messages.quickDeploy());
+    
     initializeDragnDrop();
     dragController = new PickupDragController(abPanel, false);
     dragController.setBehaviorDragStartSensitivity(3);
@@ -491,9 +499,17 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
       int numberOfDicardPieces, List<Slot> board,
       LuzhanqiMessage luzhanqiMessage) {
     if (presenter.getIsEndGame()){
-      curTurn.setText("GAME END");
+      curTurn.setText(messages.gameEnd());
     }else{
-      curTurn.setText("Current Turn: " + presenter.getGameTurn().toString());
+      String turn;
+      if (presenter.getGameTurn().toString().equals("W")) {
+        turn = messages.w();
+      } else if (presenter.getGameTurn().toString().equals("B")) {
+        turn = messages.b();
+      } else {
+        turn = messages.s();
+      }
+      curTurn.setText(messages.currentTurn() + turn);
     }
     setViewerGamePanelsByBoard(board);
     clearDeployPanels();
@@ -508,9 +524,17 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
     disableClicks();
     LuzhanqiState state = presenter.getState();
     if (presenter.getIsEndGame()){
-      curTurn.setText("GAME END");
+      curTurn.setText(messages.gameEnd());
     }else{
-      curTurn.setText("Current Turn: " + presenter.getGameTurn().toString());
+      String turn;
+      if (presenter.getGameTurn().toString().equals("W")) {
+        turn = messages.w();
+      } else if (presenter.getGameTurn().toString().equals("B")) {
+        turn = messages.b();
+      } else {
+        turn = messages.s();
+      }
+      curTurn.setText(messages.currentTurn() + turn);
     }
     
     if(luzhanqiMessage == LuzhanqiMessage.IS_DEPLOY){
