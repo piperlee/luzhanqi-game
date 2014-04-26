@@ -75,6 +75,8 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   Label curTurn;
   @UiField
   GameCSS css;
+  @UiField
+  AbsolutePanel abPanel;
 //  @UiField
 //  TextArea note;
   
@@ -104,7 +106,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   private PickupDragController dragController;
   private DragHandler dragHandler;
   private Dropper dropHandler;
-  private AbsolutePanel abPanel;
+//  private AbsolutePanel abPanel;
   private PieceMovingAnimation animation;
   private Audio pieceDown;
   private Audio pieceCaptured;
@@ -121,7 +123,8 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
     LuzhanqiGraphicsUiBinder uiBinder = GWT.create(LuzhanqiGraphicsUiBinder.class);
     initWidget(uiBinder.createAndBindUi(this));
     gameSounds = GWT.create(GameSounds.class);
-    abPanel = (AbsolutePanel)gameGrid.getParent().getParent().getParent();
+//    abPanel = (AbsolutePanel)gameGrid.getParent().getParent().getParent();
+    abPanel.setPixelSize(460, 920);
     SoundController soundController = new SoundController();
 
     initializeDragnDrop();

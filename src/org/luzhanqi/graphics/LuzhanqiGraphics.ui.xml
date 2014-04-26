@@ -19,7 +19,7 @@
         gwt-image: "gameboard";
     }
   </ui:style>
-  <g:AbsolutePanel>
+  <g:AbsolutePanel ui:field="abPanel">
     <g:HorizontalPanel>
        <g:Label ui:field="curTurn" text="Current Turn:"/>
        <g:Button ui:field="moveBtn" text="Confirm Move"/>
