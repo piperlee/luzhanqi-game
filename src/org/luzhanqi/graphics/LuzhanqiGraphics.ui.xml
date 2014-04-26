@@ -21,11 +21,11 @@
   </ui:style>
   <g:AbsolutePanel>
     <g:HorizontalPanel>
-       <g:Label ui:field="curTurn" text="Current Turn:"/>
-       <g:Button ui:field="moveBtn" text="Confirm Move"/>
-       <g:Button ui:field="deployBtn" text="Finish Deploy"/>        
+       <g:Label ui:field="curTurn" />
+       <g:Button ui:field="moveBtn" />
+       <g:Button ui:field="deployBtn" />        
        <!-- test button -->
-       <g:Button ui:field="quickDeploy" text="Quick Deploy"/>
+       <g:Button ui:field="quickDeploy" />
     </g:HorizontalPanel>    
     <g:VerticalPanel>
       <g:HTMLPanel>
