@@ -75,6 +75,8 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   @UiField
   Label curTurn;
   @UiField
+  Label gameOver;
+  @UiField
   GameCSS css;
   @UiField
   AbsolutePanel abPanel;
@@ -135,6 +137,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
     moveBtn.setText(messages.confirmMove());
     quickDeploy.setText(messages.quickDeploy());
     
+    curTurn.setVisible(false);
     //deploy btn visibility
     //quickDeploy.setVisible(false);
     
@@ -316,7 +319,10 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
         Image image = (Image) event.getContext().draggable;
         isDrag = true;
         //deploy phase
-        if (presenter.isSTurn()) {
+        //if (presenter.isSTurn()) {
+        if ( presenter.isSTurn() || ( !presenter.getState().getDB().isPresent()
+            && presenter.getState().getDW().isPresent()
+            && presenter.isAIGame())) {
           if (selectedPiece == null || selectedPieceImage == image) {
             int pieceKey = getKeyFromDeployPanels(image,presenter.getTurn());
             selectedPiece = new Piece(pieceKey,-1);
@@ -509,6 +515,10 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   public void setViewerState(int numberOfWhitePieces, int numberOfBlackPieces,
       int numberOfDicardPieces, List<Slot> board,
       LuzhanqiMessage luzhanqiMessage) {
+    
+    if (presenter.getIsEndGame()) {
+      gameOver.setText(messages.gameEnd());
+    }
     if (presenter.getIsEndGame()){
       curTurn.setText(messages.gameEnd());
     }else{
@@ -533,6 +543,9 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
       int numberOfDiscardPieces, List<Slot> board,
       LuzhanqiMessage luzhanqiMessage) {
     disableClicks();
+    if (presenter.getIsEndGame()) {
+      gameOver.setText(messages.gameEnd());
+    }
     LuzhanqiState state = presenter.getState();
     if (presenter.getIsEndGame()){
       curTurn.setText(messages.gameEnd());
@@ -548,7 +561,10 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
       curTurn.setText(messages.currentTurn() + turn);
     }
     
-    if(luzhanqiMessage == LuzhanqiMessage.IS_DEPLOY){
+//    if(luzhanqiMessage == LuzhanqiMessage.IS_DEPLOY){
+    if(luzhanqiMessage == LuzhanqiMessage.IS_DEPLOY ||
+        (state.getDW().isPresent() && !state.getDB().isPresent()
+            && presenter.isAIGame())){
       quickDeploy.setEnabled(true);
       deployEnable = true;
       // after B "Finish Deploy"
@@ -869,7 +885,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
         Sound ad = to.emptySlot()? mobilePieceDown : mobilePieceCaptured;
         animation = new PieceMovingAnimation(gameGrid,from,to,
             gamePanels[fromRow][fromCol],gamePanels[toRow][toCol],ad);
-        animation.run(200);
+        animation.run(300);
       }
     }
     isDrag = false;

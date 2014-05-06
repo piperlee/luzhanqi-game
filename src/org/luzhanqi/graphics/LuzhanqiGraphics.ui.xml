@@ -27,6 +27,7 @@
        <g:Button ui:field="deployBtn" />        
        <!-- test button -->
        <g:Button ui:field="quickDeploy" />
+       <g:Label ui:field="gameOver" />
     </g:HorizontalPanel>    
     <g:VerticalPanel>
       <g:HTMLPanel>

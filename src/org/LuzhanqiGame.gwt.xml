@@ -18,9 +18,9 @@
   <!-- PlayN related module inherits   tripleplay.TriplePlay      -->
 
    <inherits name="com.google.gwt.i18n.I18N"/>
-    <!--  <extend-property name="locale" values="en,cn"/>  -->
+   <!--    <extend-property name="locale" values="en,cn"/> --> 
     <!--Defines default locale -->
-    <!--  <set-property-fallback name="locale" value="en"/> -->
+    <!--   <set-property-fallback name="locale" value="en"/> -->
     
   <!-- gwt-dnd -->
   <inherits name='com.allen_sauer.gwt.dnd.gwt-dnd'/>

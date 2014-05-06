@@ -194,12 +194,18 @@ public class LuzhanqiPresenter {
     if (updateUI.isAiPlayer()) {
       // TODO: implement AI in a later HW!
       //container.sendMakeMove(..);
+      Turn opponent = myT.getOppositeColor();
+      int numberOfOpponentCards = luzhanqiState.getWhiteOrBlack(opponent).size();
+      view.setPlayerState(numberOfOpponentCards, luzhanqiState.getDiscard().size(), 
+          luzhanqiState.getBoard(), getLuzhanqiMessage());
       if (thisT == Turn.S && myT == Turn.W) {
         if (isAIGame() && !luzhanqiState.getDW().isPresent()) {
           aiDeploy();
           finishedDeployingPieces();
         }                    
-      } else if (getLuzhanqiMessage()==LuzhanqiMessage.NORMAL_MOVE && thisT == Turn.W){
+      } else if (getLuzhanqiMessage()==LuzhanqiMessage.NORMAL_MOVE
+          && thisT == Turn.W
+          && !getIsEndGame()){
         fromTo = alphaBetaPruning.findBestMove(luzhanqiState, 4, new MyTimer(2000));
         //fromTo = alphaBetaPruning.findBestMove(luzhanqiState, 1);
         //System.out.println("Actual:"+fromTo.get(0).getKey()+" "+fromTo.get(1).getKey());
@@ -215,7 +221,11 @@ public class LuzhanqiPresenter {
     }
     
     // if S turn
-    if(thisT == Turn.S){
+ //   if(thisT == Turn.S){
+    if ( thisT == Turn.S
+        || (!luzhanqiState.getDB().isPresent() 
+            && luzhanqiState.getDW().isPresent()
+            && isAIGame())) {
       view.setPlayerState(25, luzhanqiState.getDiscard().size(), 
           luzhanqiState.getBoard(), getLuzhanqiMessage());
       deployNextPiece();     
@@ -248,6 +258,7 @@ public class LuzhanqiPresenter {
 
   // to check if the game state is an end game state
   private boolean endGame(){
+    if (luzhanqiState.getWinner()!= null) return true;
     if(luzhanqiState.getDiscard().contains(24) || luzhanqiState.getDiscard().contains(49))
       return true;
     boolean blackNoMove = true;
@@ -427,7 +438,7 @@ public class LuzhanqiPresenter {
    */  
   public void pieceDeploy(Piece piece, Slot slot){
     try {
-      check(isSTurn());
+      //check(isSTurn());
       check(validDeployPosition(piece,slot));
     } catch (Exception e) {
       if (piece != null) {

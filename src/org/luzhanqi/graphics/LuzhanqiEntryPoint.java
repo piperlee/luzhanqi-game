@@ -33,7 +33,7 @@ public class LuzhanqiEntryPoint implements EntryPoint {
   //End
   
   //AI
-//  AIContainer container;
+  //AIContainer container;
   //End
   
   //Emulator
@@ -144,7 +144,7 @@ public class LuzhanqiEntryPoint implements EntryPoint {
     
     //AI
     //black start
-//    container.updateUi(container.getPlayerIds().get(0));
+    //container.updateUi(container.getPlayerIds().get(0));
     //End
     scaleGame();
   }

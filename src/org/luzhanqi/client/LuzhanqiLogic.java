@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.game_api.GameApi;
 import org.game_api.GameApi.Delete;
 import org.game_api.GameApi.EndGame;
 import org.game_api.GameApi.Operation;
@@ -77,6 +78,7 @@ public class LuzhanqiLogic {
      */
     List<Operation> operations = Lists.newArrayList();
     // B first
+    
     if(!state.getDB().isPresent() && !state.getDW().isPresent()) {
       operations.add(new SetTurn(sId));      
     } else {
@@ -484,36 +486,35 @@ public class LuzhanqiLogic {
      *  4) new Set D
      *  5) new SetVisibility(0-49)
      */
-    operations.add(new SetTurn(blackPlayerId));
+    if (whitePlayerId.equals(GameApi.AI_PLAYER_ID)) {
+      operations.add(new SetTurn(blackPlayerId));
+    } else {
+      operations.add(new SetTurn(sId));
+    }
     // set board
     operations.add(new Set(BOARD,ImmutableList.of(
-        0,24,21,1,2,
-        3,4,22,5,23,
-        6,-1,8,-1,10,
-        11,12,-1,14,20,
-        7,-1,13,-1,19,
-        16,17,18,9,15,
-        25,26,27,28,29,
-        30,-1,31,-1,32,
-        33,34,-1,35,36,
-        37,-1,38,-1,39,
-        40,47,46,44,43,
-        45,49,48,42,41)));
-    operations.add(new Set(DW, ImmutableList.of(
-        0,24,21,1,2,
-        3,4,22,5,23,
-        6,-1,8,-1,10,
-        11,12,-1,14,20,
-        7,-1,13,-1,19,
-        16,17,18,9,15)));
-    operations.add(new Set(DB, ImmutableList.of(
-        25,26,27,28,29,
-        30,-1,31,-1,32,
-        33,34,-1,35,36,
-        37,-1,38,-1,39,
-        40,47,46,44,43,
-        45,49,48,42,41)));
-    operations.add(new Set(DEPLOY,DEPLOY));
+        -1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1)));
+    if (whitePlayerId.equals(GameApi.AI_PLAYER_ID)) {
+      operations.add(new Set(DW, ImmutableList.of(
+          0,24,21,1,2,
+          3,4,22,5,23,
+          6,-1,8,-1,10,
+          11,12,-1,14,20,
+          7,-1,13,-1,19,
+          16,17,18,9,15)));
+      operations.add(new Set(DEPLOY,DEPLOY));
+    }
     // set W and B hands
     operations.add(new Set(W, ImmutableList.of(
         0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24)));
