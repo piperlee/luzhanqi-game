@@ -842,7 +842,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
 //              deployPanels[pieceRow][pieceCol],gamePanels[slotRow][slotCol],pieceDown);
           animation = new PieceMovingAnimation(gameGrid, deployGrid,piece,slot,
               deployPanels[pieceRow][pieceCol],gamePanels[slotRow][slotCol],mobilePieceDown);
-          animation.run(700);
+          animation.run(400);
         }
       }
     }
@@ -869,7 +869,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
         Sound ad = to.emptySlot()? mobilePieceDown : mobilePieceCaptured;
         animation = new PieceMovingAnimation(gameGrid,from,to,
             gamePanels[fromRow][fromCol],gamePanels[toRow][toCol],ad);
-        animation.run(700);
+        animation.run(200);
       }
     }
     isDrag = false;

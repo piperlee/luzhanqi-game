@@ -196,7 +196,7 @@ public class LuzhanqiPresenter {
       //container.sendMakeMove(..);
       if (thisT == Turn.S && myT == Turn.W) {
         if (isAIGame() && !luzhanqiState.getDW().isPresent()) {
-          aiDelopy();
+          aiDeploy();
           finishedDeployingPieces();
         }                    
       } else if (getLuzhanqiMessage()==LuzhanqiMessage.NORMAL_MOVE && thisT == Turn.W){
@@ -305,7 +305,7 @@ public class LuzhanqiPresenter {
     return luzhanqiLogic.fromIsValid(luzhanqiState, from);
   }
   
-  public void aiDelopy() {
+  public void aiDeploy() {
     deployMap.clear();
     List<Integer> list = ImmutableList.of(
         0,24,21,1,2,
@@ -324,6 +324,32 @@ public class LuzhanqiPresenter {
       for(int j = 0; j<5; j++){
         Slot slot = new Slot(i*5+j,list.get(i*5+j));
         Piece piece = slot.getPiece(); 
+        if(piece!=null){
+          deployMap.put(piece, slot);
+        }
+      }
+    }
+  }
+  
+  public void blackDeploy() {
+    deployMap.clear();
+    List<Integer> list = ImmutableList.of(
+        0,24,21,1,2,
+        3,4,22,5,23,
+        6,-1,8,-1,10,
+        11,12,-1,14,20,
+        7,-1,13,-1,19,
+        16,17,18,9,15,
+        25,26,27,28,29,
+        30,-1,31,-1,32,
+        33,34,-1,35,36,
+        37,-1,38,-1,39,
+        40,47,46,44,43,
+        45,49,48,42,41);    
+    for(int i = 6; i<12; i++){
+      for(int j = 0; j<5; j++){
+        Slot slot = new Slot(i*5+j,list.get(i*5+j));
+        Piece piece = slot.getPiece();
         if(piece!=null){
           deployMap.put(piece, slot);
         }
@@ -542,6 +568,13 @@ public class LuzhanqiPresenter {
 
   private void sendInitialMove(List<String> playerIds) {
     container.sendMakeMove(luzhanqiLogic.getInitialMove(playerIds));
+//    aiDeploy();
+//    container.sendMakeMove(luzhanqiLogic.deployPiecesMove(
+//        luzhanqiState, getDeployList(deployMap), playerIds, playerIds.get(1)));
+//    blackDeploy();
+//    container.sendMakeMove(luzhanqiLogic.deployPiecesMove(
+//        luzhanqiState, getDeployList(deployMap), playerIds, playerIds.get(0)));
+    
     //TODO AI
 //    updateUIAI();
 //    updateUIPlayer();

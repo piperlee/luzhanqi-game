@@ -472,8 +472,8 @@ public class LuzhanqiLogic {
   }
 
   List<Operation> getInitialMove(List<String> playerIds){
-    String whitePlayerId = playerIds.get(0);
-    String blackPlayerId = playerIds.get(1);
+    String whitePlayerId = playerIds.get(1);
+    String blackPlayerId = playerIds.get(0);
     List<Operation> operations = Lists.newArrayList();
     /**
      *  Initial move
@@ -484,21 +484,36 @@ public class LuzhanqiLogic {
      *  4) new Set D
      *  5) new SetVisibility(0-49)
      */
-    operations.add(new SetTurn(sId));
+    operations.add(new SetTurn(blackPlayerId));
     // set board
     operations.add(new Set(BOARD,ImmutableList.of(
-          -1,-1,-1,-1,-1,
-          -1,-1,-1,-1,-1,
-          -1,-1,-1,-1,-1,
-          -1,-1,-1,-1,-1,
-          -1,-1,-1,-1,-1,
-          -1,-1,-1,-1,-1,
-          -1,-1,-1,-1,-1,
-          -1,-1,-1,-1,-1,
-          -1,-1,-1,-1,-1,
-          -1,-1,-1,-1,-1,
-          -1,-1,-1,-1,-1,
-          -1,-1,-1,-1,-1)));
+        0,24,21,1,2,
+        3,4,22,5,23,
+        6,-1,8,-1,10,
+        11,12,-1,14,20,
+        7,-1,13,-1,19,
+        16,17,18,9,15,
+        25,26,27,28,29,
+        30,-1,31,-1,32,
+        33,34,-1,35,36,
+        37,-1,38,-1,39,
+        40,47,46,44,43,
+        45,49,48,42,41)));
+    operations.add(new Set(DW, ImmutableList.of(
+        0,24,21,1,2,
+        3,4,22,5,23,
+        6,-1,8,-1,10,
+        11,12,-1,14,20,
+        7,-1,13,-1,19,
+        16,17,18,9,15)));
+    operations.add(new Set(DB, ImmutableList.of(
+        25,26,27,28,29,
+        30,-1,31,-1,32,
+        33,34,-1,35,36,
+        37,-1,38,-1,39,
+        40,47,46,44,43,
+        45,49,48,42,41)));
+    operations.add(new Set(DEPLOY,DEPLOY));
     // set W and B hands
     operations.add(new Set(W, ImmutableList.of(
         0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24)));
@@ -513,6 +528,7 @@ public class LuzhanqiLogic {
     for (int i = 25; i < 50; i++) {
       operations.add(new SetVisibility(String.valueOf(i), ImmutableList.of(blackPlayerId)));
     }
+    
     return operations;
   }
 
