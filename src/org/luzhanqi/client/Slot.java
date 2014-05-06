@@ -158,14 +158,18 @@ public class Slot {
   public void setEmpty(){
     if(this.curPiece.get().getKey()==this.key)
       this.curPiece.get().setSlot(-1);
-    //this.curPiece = Optional.<Piece>of(null);
-    this.curPiece = null;
+    this.curPiece = Optional.<Piece>absent();
+    //this.curPiece = null;
     this.isEmpty = true;
     
   }
   
   public boolean isAdj(int key2){
     return this.adjSlots.contains(key2);
+  }
+  
+  public int getPieceKey() {
+    return this.isEmpty? -1 : this.curPiece.get().getKey();
   }
   
   @Override

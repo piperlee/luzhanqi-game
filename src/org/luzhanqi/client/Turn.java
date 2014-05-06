@@ -1,8 +1,8 @@
 package org.luzhanqi.client;
 
-//W: 0, B:1
+//B: 0, W:1
 public enum Turn {
-  W, B, S;
+  B, W, S;
 
   public boolean isWhite() {
     return this == W;

@@ -107,25 +107,31 @@ public class PieceMovingAnimation extends Animation {
    piece = supplier.getPieceImage(from);
    transform = to.emptySlot() ? piece : piece;
    if (from.getPlayer() == Turn.W) {
-     startX = deployGrid.getWidget(from.getKey()/5, from.getKey()%5).getAbsoluteLeft();
-     startY = deployGrid.getWidget(from.getKey()/5, from.getKey()%5).getAbsoluteTop();
+     startX = (int) (deployGrid.getWidget(from.getKey()/5, from.getKey()%5).getAbsoluteLeft()
+         / GameSetting.scale );
+     startY = (int) (deployGrid.getWidget(from.getKey()/5, from.getKey()%5).getAbsoluteTop()
+         / GameSetting.scale );
    } else {
-     startX = deployGrid.getWidget((from.getKey()-25)/5, from.getKey()%5).getAbsoluteLeft();
-     startY = deployGrid.getWidget((from.getKey()-25)/5, from.getKey()%5).getAbsoluteTop();
+     startX = (int) (deployGrid.getWidget((from.getKey()-25)/5, from.getKey()%5).getAbsoluteLeft() 
+         / GameSetting.scale );
+     startY = (int) (deployGrid.getWidget((from.getKey()-25)/5, from.getKey()%5).getAbsoluteTop()
+         / GameSetting.scale );
    }
    startWidth = start.getWidth();
    startHeight = start.getHeight();
    panel = (AbsolutePanel) gameGrid.getParent().getParent().getParent();
-   endX = gameGrid.getWidget(to.getKey()/5, to.getKey()%5).getAbsoluteLeft();
-   endY = gameGrid.getWidget(to.getKey()/5, to.getKey()%5).getAbsoluteTop();
+   endX = (int) (gameGrid.getWidget(to.getKey()/5, to.getKey()%5).getAbsoluteLeft()
+       / GameSetting.scale );
+   endY = (int) (gameGrid.getWidget(to.getKey()/5, to.getKey()%5).getAbsoluteTop()
+       / GameSetting.scale );
    mobileSoundAtEnd = sfx;
    cancelled = false;
 
    //start.setResource(supplier.getEmpty());
    startPanel.clear();
    moving = new Image(piece);
-   moving.setPixelSize(startWidth, startHeight);
 
+   moving.setPixelSize(startWidth, startHeight);
    panel.add(moving, startX, startY);
  }
 
@@ -139,13 +145,17 @@ public class PieceMovingAnimation extends Animation {
    piece = supplier.getPieceImage(from.getPiece());
    transform = to.emptySlot() ? piece : piece;
    
-   startX = gameGrid.getWidget(from.getKey()/5, from.getKey()%5).getAbsoluteLeft();
-   startY = gameGrid.getWidget(from.getKey()/5, from.getKey()%5).getAbsoluteTop();
+   startX = (int)(gameGrid.getWidget(from.getKey()/5, from.getKey()%5).getAbsoluteLeft()
+       / GameSetting.scale );
+   startY = (int)(gameGrid.getWidget(from.getKey()/5, from.getKey()%5).getAbsoluteTop()
+       / GameSetting.scale );
    startWidth = start.getWidth();
    startHeight = start.getHeight();
    panel = (AbsolutePanel) gameGrid.getParent().getParent().getParent();
-   endX = gameGrid.getWidget(to.getKey()/5, to.getKey()%5).getAbsoluteLeft();
-   endY = gameGrid.getWidget(to.getKey()/5, to.getKey()%5).getAbsoluteTop();
+   endX = (int)(gameGrid.getWidget(to.getKey()/5, to.getKey()%5).getAbsoluteLeft()
+       / GameSetting.scale );
+   endY = (int)(gameGrid.getWidget(to.getKey()/5, to.getKey()%5).getAbsoluteTop()
+       / GameSetting.scale );
    mobileSoundAtEnd = sfx;
    cancelled = false;
 
@@ -159,15 +169,16 @@ public class PieceMovingAnimation extends Animation {
  
   @Override
   protected void onUpdate(double progress) {
+//    System.out.println(progress);
     int x = (int) (startX + (endX - startX) * progress);
     int y = (int) (startY + (endY - startY) * progress);
     double scale = 1 + 0.5 * Math.sin(progress * Math.PI);
     int width = (int) (startWidth * scale);
     int height = (int) (startHeight * scale);
     moving.setPixelSize(width, height);
+
     x -= (width - startWidth) / 2;
     y -= (height - startHeight) / 2;
-
     panel.remove(moving);
     moving = new Image(piece.getSafeUri());
     moving.setPixelSize(width, height);

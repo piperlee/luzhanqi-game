@@ -5,14 +5,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.game_api.GameApi;
 import org.game_api.GameApi.Container;
 import org.game_api.GameApi.Operation;
 import org.game_api.GameApi.SetTurn;
 import org.game_api.GameApi.UpdateUI;
+import org.luzhanqi.graphics.AIContainer;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.gwt.user.client.Timer;
 
 /**
  * The presenter that controls the luzhanqi graphics.
@@ -107,12 +110,28 @@ public class LuzhanqiPresenter {
   private List<String> playerIds;
   private String yourPlayerId;
   private boolean isEndGame = false;
+  private AlphaBetaPruning alphaBetaPruning = new AlphaBetaPruning();
     
   public LuzhanqiPresenter(View view, Container container) {
     this.view = view;
     this.container = container;
     view.setPresenter(this);
   }
+  
+  public void updateUIAI() {
+    AIContainer aiContainer = (AIContainer) this.container;
+    aiContainer.updateUi(GameApi.AI_PLAYER_ID);
+  }
+  
+  public void updateUIPlayer() {
+    AIContainer aiContainer = (AIContainer) this.container;
+    for (String pId : playerIds)  {
+      if (!pId.equals(GameApi.AI_PLAYER_ID)) {
+        aiContainer.updateUi(pId);
+      }
+    }    
+  }
+  
   
   /** Get current presenter Turn, i.e who is UI active */
   public Turn getTurn(){
@@ -130,73 +149,98 @@ public class LuzhanqiPresenter {
   }
   
   /** Updates the presenter and the view with the state in updateUI. */
-    public void updateUI(UpdateUI updateUI) {
-      playerIds = updateUI.getPlayerIds();
-      yourPlayerId = updateUI.getYourPlayerId();
-      int yourPlayerIndex = updateUI.getPlayerIndex(yourPlayerId);
-      // turn s has a dummy player id
-      myTurn = yourPlayerIndex == 0 ? Optional.of(Turn.W)
-          : yourPlayerIndex == 1 ? Optional.of(Turn.B) 
-          : yourPlayerIndex == 2 ? Optional.of(Turn.S) : Optional.<Turn>absent();
-          
-      if (updateUI.getState().isEmpty()) {
-        // The W player sends the initial setup move.
-        if (myTurn.isPresent() && myTurn.get().isBlack()) {
-          sendInitialMove(playerIds);
-        }
-        return;
+  public void updateUI(UpdateUI updateUI) {
+    playerIds = updateUI.getPlayerIds();
+    yourPlayerId = updateUI.getYourPlayerId();
+    int yourPlayerIndex = updateUI.getPlayerIndex(yourPlayerId);
+    // turn s has a dummy player id
+    myTurn = yourPlayerIndex == 0 ? Optional.of(Turn.B)
+        : yourPlayerIndex == 1 ? Optional.of(Turn.W) 
+        : yourPlayerIndex == 2 ? Optional.of(Turn.S) : Optional.<Turn>absent();
+        
+    if (updateUI.getState().isEmpty()) {
+      // The B player sends the initial setup move.
+      if (myTurn.isPresent() && myTurn.get().isBlack()) {
+//        if (myTurn.isPresent() ) {
+        sendInitialMove(playerIds);
       }
-      Turn turnOfColor = null;
-      for (Operation operation : updateUI.getLastMove()) {
-        if (operation instanceof SetTurn) {
-          String pId = ((SetTurn) operation).getPlayerId();
-          turnOfColor = pId.equals(sId) ? Turn.S : Turn.values()[playerIds.indexOf(pId)];
-        }
-      }
-      deployMap = new HashMap<Piece,Slot>();
-      fromTo = new ArrayList<Slot>();
-      lastDeploy = new HashMap<Piece,Optional<Slot>>();
-      luzhanqiState = 
-          luzhanqiLogic.gameApiStateToLuzhanqiState(updateUI.getState(), turnOfColor, playerIds);
-      //apiBoard = getApiBoard(luzhanqiState.getBoard());
-      isEndGame = endGame();
-      
-      if (updateUI.isViewer()) {
-        view.setViewerState(luzhanqiState.getWhite().size(), luzhanqiState.getBlack().size(),
-           luzhanqiState.getDiscard().size() ,luzhanqiState.getBoard(), getLuzhanqiMessage());
-        return;
-      }
-      if (updateUI.isAiPlayer()) {
-        // TODO: implement AI in a later HW!
-        //container.sendMakeMove(..);
-        return;
-      }
-      // Must be a player!
-      Turn myT = myTurn.get();
-      Turn thisT = luzhanqiState.getTurn();
-      // if S turn
-      if(thisT == Turn.S){
-        view.setPlayerState(25, luzhanqiState.getDiscard().size(), 
-            luzhanqiState.getBoard(), getLuzhanqiMessage());
-        deployNextPiece();     
-      }else{
-        Turn opponent = myT.getOppositeColor();
-        int numberOfOpponentCards = luzhanqiState.getWhiteOrBlack(opponent).size();
-        view.setPlayerState(numberOfOpponentCards, luzhanqiState.getDiscard().size(), 
-            luzhanqiState.getBoard(), getLuzhanqiMessage());
-        if (isMyTurn() || getLuzhanqiMessage()==LuzhanqiMessage.FIRST_MOVE) {          
-          if(getLuzhanqiMessage()==LuzhanqiMessage.FIRST_MOVE){
-            if (myTurn.isPresent() && myTurn.get().isBlack()) {
-              firstMove();            
-            }          
-          } else if (getLuzhanqiMessage()==LuzhanqiMessage.NORMAL_MOVE){
-            // Choose the next card only if the game is not over            
-            if (!isEndGame)
-              nextFromTo();
-          }
-        }
-      }   
+      return;
     }
+    Turn turnOfColor = null;
+    for (Operation operation : updateUI.getLastMove()) {
+      if (operation instanceof SetTurn) {
+        String pId = ((SetTurn) operation).getPlayerId();
+        turnOfColor = pId.equals(sId) ? Turn.S : Turn.values()[playerIds.indexOf(pId)];
+      }
+    }
+    deployMap = new HashMap<Piece,Slot>();
+    fromTo = new ArrayList<Slot>();
+    lastDeploy = new HashMap<Piece,Optional<Slot>>();
+    luzhanqiState = 
+        luzhanqiLogic.gameApiStateToLuzhanqiState(updateUI.getState(), turnOfColor, playerIds);
+    //apiBoard = getApiBoard(luzhanqiState.getBoard());
+    isEndGame = endGame();
+    
+    if (updateUI.isViewer()) {
+      view.setViewerState(luzhanqiState.getWhite().size(), luzhanqiState.getBlack().size(),
+         luzhanqiState.getDiscard().size() ,luzhanqiState.getBoard(), getLuzhanqiMessage());
+      return;
+    }
+    
+    Turn thisT = luzhanqiState.getTurn();
+    // Must be a player!
+    Turn myT = myTurn.get();
+    
+    if (updateUI.isAiPlayer()) {
+      // TODO: implement AI in a later HW!
+      //container.sendMakeMove(..);
+      if (thisT == Turn.S && myT == Turn.W) {
+        if (isAIGame() && !luzhanqiState.getDW().isPresent()) {
+          aiDelopy();
+          finishedDeployingPieces();
+        }                    
+      } else if (getLuzhanqiMessage()==LuzhanqiMessage.NORMAL_MOVE && thisT == Turn.W){
+        fromTo = alphaBetaPruning.findBestMove(luzhanqiState, 4, new MyTimer(2000));
+        //fromTo = alphaBetaPruning.findBestMove(luzhanqiState, 1);
+        //System.out.println("Actual:"+fromTo.get(0).getKey()+" "+fromTo.get(1).getKey());
+        nextFromTo();
+//        Timer timer = new Timer() {
+//          public void run() {  }
+//        };
+//        timer.schedule(1000);
+        waitFun();
+        finishedNormalMove();
+      }        
+      return;
+    }
+    
+    // if S turn
+    if(thisT == Turn.S){
+      view.setPlayerState(25, luzhanqiState.getDiscard().size(), 
+          luzhanqiState.getBoard(), getLuzhanqiMessage());
+      deployNextPiece();     
+    }else{
+      Turn opponent = myT.getOppositeColor();
+      int numberOfOpponentCards = luzhanqiState.getWhiteOrBlack(opponent).size();
+      view.setPlayerState(numberOfOpponentCards, luzhanqiState.getDiscard().size(), 
+          luzhanqiState.getBoard(), getLuzhanqiMessage());
+      if (isMyTurn() || getLuzhanqiMessage()==LuzhanqiMessage.FIRST_MOVE) {          
+        if(getLuzhanqiMessage()==LuzhanqiMessage.FIRST_MOVE){
+          if (myTurn.isPresent() && myTurn.get().isBlack()) {
+            firstMove();            
+          }          
+        } else if (getLuzhanqiMessage()==LuzhanqiMessage.NORMAL_MOVE){
+          // Choose the next card only if the game is not over            
+          if (!isEndGame)
+            nextFromTo();
+        }
+      }
+    }   
+  }
+    
+  public final native void waitFun() /*-{
+    $wnd.setTimeout(function() { }, 1000);
+  }-*/; 
     
   public boolean getIsEndGame(){
     return isEndGame;
@@ -246,6 +290,11 @@ public class LuzhanqiPresenter {
     return luzhanqiState.getTurn() == Turn.S;
   }
   
+  // Check if this is an AI game
+  public boolean isAIGame() {
+    return playerIds.contains(GameApi.AI_PLAYER_ID);
+  }
+  
   // check if a moving destination is valid
   public boolean toValid(Slot from, Slot to){
     return luzhanqiLogic.toIsValid(luzhanqiState, from, to);
@@ -254,6 +303,32 @@ public class LuzhanqiPresenter {
   // check if a moving origin is valid
   public boolean fromValid(Slot from){
     return luzhanqiLogic.fromIsValid(luzhanqiState, from);
+  }
+  
+  public void aiDelopy() {
+    deployMap.clear();
+    List<Integer> list = ImmutableList.of(
+        0,24,21,1,2,
+        3,4,22,5,23,
+        6,-1,8,-1,10,
+        11,12,-1,14,20,
+        7,-1,13,-1,19,
+        16,17,18,9,15,
+        25,26,27,28,29,
+        30,-1,31,-1,32,
+        33,34,-1,35,36,
+        37,-1,38,-1,39,
+        40,47,46,44,43,
+        45,49,48,42,41);
+    for(int i = 0; i<6;i++){
+      for(int j = 0; j<5; j++){
+        Slot slot = new Slot(i*5+j,list.get(i*5+j));
+        Piece piece = slot.getPiece(); 
+        if(piece!=null){
+          deployMap.put(piece, slot);
+        }
+      }
+    }
   }
   
   public boolean deployValid (int pieceKey, int slotKey) {
@@ -380,6 +455,12 @@ public class LuzhanqiPresenter {
         luzhanqiState, getDeployList(deployMap), playerIds, yourPlayerId));
   }
   
+//  public void finishedAIDeploy() {
+//    check(deployMap.size()==25);
+//    container.sendMakeMove(luzhanqiLogic.deployPiecesMove(
+//        luzhanqiState, getDeployList(deployMap), playerIds, GameApi.AI_PLAYER_ID));
+//  }
+  
   /**
    * After deploy phase, player B do the first move.
    * This method can be called if the presenter passed
@@ -415,7 +496,8 @@ public class LuzhanqiPresenter {
    * and there is one valid from-to pair existing by calling {@link #moveSelected(Slot, Slot)}
    */
   public void finishedNormalMove() {
-    check(isMyTurn() && fromTo.size()==2);        
+    check(isMyTurn() && fromTo.size()==2);  
+    //check(fromTo.size()==2);  
     apiBoard = getApiBoard(luzhanqiState.getBoard());
     container.sendMakeMove(luzhanqiLogic.normalMove(
         luzhanqiState, apiBoard, 
@@ -460,5 +542,8 @@ public class LuzhanqiPresenter {
 
   private void sendInitialMove(List<String> playerIds) {
     container.sendMakeMove(luzhanqiLogic.getInitialMove(playerIds));
+    //TODO AI
+//    updateUIAI();
+//    updateUIPlayer();
   }
 }

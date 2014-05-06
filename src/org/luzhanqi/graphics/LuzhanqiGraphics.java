@@ -3,6 +3,7 @@ package org.luzhanqi.graphics;
 import java.util.List;
 import java.util.Map;
 
+import org.game_api.GameApi;
 import org.luzhanqi.client.LuzhanqiPresenter;
 import org.luzhanqi.client.LuzhanqiPresenter.LuzhanqiMessage;
 import org.luzhanqi.client.LuzhanqiState;
@@ -119,21 +120,23 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
   private GameMessages messages;
  
   @SuppressWarnings("deprecation")
-  public LuzhanqiGraphics() {
+  public LuzhanqiGraphics() {    
     PieceImages pieceImages = GWT.create(PieceImages.class);
     this.pieceImageSupplier = new PieceImageSupplier(pieceImages);
     LuzhanqiGraphicsUiBinder uiBinder = GWT.create(LuzhanqiGraphicsUiBinder.class);
     initWidget(uiBinder.createAndBindUi(this));
     messages = (GameMessages)GWT.create(GameMessages.class);
     gameSounds = GWT.create(GameSounds.class);
-//    abPanel = (AbsolutePanel)gameGrid.getParent().getParent().getParent();
-    abPanel.setPixelSize(460, 920);
+    abPanel.setPixelSize(GameSetting.width, GameSetting.height);
     SoundController soundController = new SoundController();
 
     // initialize button text
     deployBtn.setText(messages.finishDeploy());
     moveBtn.setText(messages.confirmMove());
     quickDeploy.setText(messages.quickDeploy());
+    
+    //deploy btn visibility
+    //quickDeploy.setVisible(false);
     
     initializeDragnDrop();
     dragController = new PickupDragController(abPanel, false);
@@ -441,6 +444,10 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
     moveBtn.setEnabled(false);
     presenter.finishedNormalMove();
     moveBtn.setEnabled(false);
+    //TODO AI
+//    presenter.updateUIAI();
+//    waitFun();
+//    presenter.updateUIPlayer();
   }
   
   // For test purpose
@@ -489,6 +496,10 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
     clearDeployPanels();
   }
 
+  public final native void waitFun() /*-{
+    $wnd.setTimeout(function() { }, 3000);
+  }-*/; 
+  
   @Override
   public void setPresenter(LuzhanqiPresenter luzhanqiPresenter) {
     this.presenter = luzhanqiPresenter;
@@ -680,8 +691,8 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
             int slotKey = i * GAME_COL + j;
             int pieceKey = list.get(slotKey);
             Slot slot = new Slot(slotKey,pieceKey);
+            gamePanels[i][j].clear();
             if (!slot.emptySlot()) {
-              gamePanels[i][j].clear();
               gamePanels[i][j].add(createSlotImage(slot,false));
             }
           }
@@ -710,17 +721,16 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
       for (int j = 0; j < GAME_COL; j++) {
         final Slot slot = board.get(i*GAME_COL+j);
         final Turn t = turn;
+        gamePanels[i][j].clear();
         if (!slot.emptySlot()) {
           if (slot.getPiece().getPlayer() == turn) {
             Image image = createSlotImage(slot,true);
-            gamePanels[i][j].clear();
             gamePanels[i][j].add(image);
           } else {
             Image image = createSlotImage(slot,false);
-            gamePanels[i][j].clear();
             gamePanels[i][j].add(image);
           }         
-        }          
+        }
         final SimplePanel panel = gamePanels[i][j];
         gamePanels[i][j].sinkEvents(Event.ONCLICK);
         if (gpClick[i][j] != null ) {
@@ -832,7 +842,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
 //              deployPanels[pieceRow][pieceCol],gamePanels[slotRow][slotCol],pieceDown);
           animation = new PieceMovingAnimation(gameGrid, deployGrid,piece,slot,
               deployPanels[pieceRow][pieceCol],gamePanels[slotRow][slotCol],mobilePieceDown);
-          animation.run(1000);
+          animation.run(700);
         }
       }
     }
@@ -859,7 +869,7 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
         Sound ad = to.emptySlot()? mobilePieceDown : mobilePieceCaptured;
         animation = new PieceMovingAnimation(gameGrid,from,to,
             gamePanels[fromRow][fromCol],gamePanels[toRow][toCol],ad);
-        animation.run(1000);
+        animation.run(700);
       }
     }
     isDrag = false;

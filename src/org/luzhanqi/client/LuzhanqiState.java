@@ -24,7 +24,7 @@ public class LuzhanqiState {
   /**
    * Note that some of the entries will have null, meaning the card is not visible to us.
    */
-  private final ImmutableList<Slot> board;
+  private ImmutableList<Slot> board;
 
   /**
    * Index of the white pieces, each integer is in the range [0-24].
@@ -36,10 +36,11 @@ public class LuzhanqiState {
   private final ImmutableList<Integer> discard;
   private final Optional<List<Integer>> dw;
   private final Optional<List<Integer>> db;
-  private final Optional<List<Integer>> move;
+  private Optional<List<Integer>> move;
   private final boolean isDeploy;
+  private String gameResult;
+  private Turn winner;
  
-
   public LuzhanqiState(Turn turn, ImmutableList<String> playerIds,
       ImmutableList<Slot> board, ImmutableList<Integer> white,
       ImmutableList<Integer> black, ImmutableList<Integer> discard,
@@ -56,6 +57,29 @@ public class LuzhanqiState {
     this.db = db;
     this.move = move;
     this.isDeploy = isDeploy;
+    this.gameResult = null;
+    this.winner = null;
+  }
+  
+  public LuzhanqiState(Turn turn, ImmutableList<String> playerIds,
+      ImmutableList<Slot> board, ImmutableList<Integer> white,
+      ImmutableList<Integer> black, ImmutableList<Integer> discard,
+      Optional<List<Integer>> dw, Optional<List<Integer>> db,
+      Optional<List<Integer>> move, boolean isDeploy, 
+      String gameResult, Turn winner) {
+    super();
+    this.turn = checkNotNull(turn);
+    this.playerIds = checkNotNull(playerIds);
+    this.board = checkNotNull(board);
+    this.white = checkNotNull(white);
+    this.black = checkNotNull(black);
+    this.discard = checkNotNull(discard);
+    this.dw = dw;
+    this.db = db;
+    this.move = move;
+    this.isDeploy = isDeploy;
+    this.gameResult = gameResult;
+    this.winner = winner;
   }
 
   public Turn getTurn() {
@@ -64,6 +88,10 @@ public class LuzhanqiState {
   
   public ImmutableList<Slot> getBoard(){
     return board;
+  }
+  
+  public void setBoard (ImmutableList<Slot> board) {
+    this.board = board;
   }
   
   public List<Integer> getApiBoard(){
@@ -121,7 +149,42 @@ public class LuzhanqiState {
     return move;
   }
   
+  public void setMove(Optional<List<Integer>> move){
+    this.move = move;
+  }
+  
   public boolean getIsDeploy(){
     return isDeploy;
+  }
+  
+  public String getGameResult() {
+    return this.gameResult;
+  }
+  
+  public void setGameResult(String gameResult) {
+    this.gameResult = gameResult;
+  }
+  
+  public Turn getWinner() {
+    return this.winner;
+  }
+  
+  public void setWinner(Turn turn) {
+    this.winner = turn;
+  }
+  
+  public LuzhanqiState copy() {
+    List<Slot> newBoard = new ArrayList<Slot>();
+    for (Slot slot:board) {
+      Slot newSlot = new Slot(slot.getKey(), slot.getPieceKey());
+      newBoard.add(newSlot);
+    }
+    return new LuzhanqiState(turn, 
+        ImmutableList.copyOf(playerIds), 
+        ImmutableList.copyOf(newBoard), 
+        white, black, discard,
+        dw, db, 
+        Optional.fromNullable((List<Integer>)ImmutableList.copyOf(move.get())), 
+        isDeploy, gameResult, winner);
   }
 }

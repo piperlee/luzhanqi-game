@@ -59,7 +59,7 @@ public class LuzhanqiLogic {
     // first MakeMove we'll send SetTurn which will guarantee the correct player send MakeMove).
     if (lastState.isEmpty()) {
       //in luzhanqi black player initial the board
-      check(verifyMove.getLastMovePlayerId().equals(verifyMove.getPlayerIds().get(1)));
+      check(verifyMove.getLastMovePlayerId().equals(verifyMove.getPlayerIds().get(0)));
     }
   }
 
@@ -77,10 +77,11 @@ public class LuzhanqiLogic {
      */
     List<Operation> operations = Lists.newArrayList();
     // B first
-    if(!state.getDB().isPresent() && !state.getDW().isPresent())
-      operations.add(new SetTurn(sId));
-    else
+    if(!state.getDB().isPresent() && !state.getDW().isPresent()) {
+      operations.add(new SetTurn(sId));      
+    } else {
       operations.add(new SetTurn(state.getPlayerId(Turn.B)));
+    }
     operations.add(new Set(DEPLOY, DEPLOY));
     //BLACK deploy
     if (state.getPlayerId(Turn.B).equals(lastMovePlayerId)){
@@ -232,6 +233,8 @@ public class LuzhanqiLogic {
         operations.add(new Set(B, bHand));
         operations.add(new Set(D, dHand));
         operations.add(new EndGame(state.getPlayerId(turn)));
+        state.setGameResult("OVER");
+        state.setWinner(turn);
       }
       // Bomb meets other pieces, both off the board
       else if (slotFrom.getPiece().getFace()==PieceType.BOMB 
@@ -336,7 +339,9 @@ public class LuzhanqiLogic {
         }   
       }
       if (noneToMove){
-        operations.add(new EndGame(state.getPlayerId(turn)));
+        operations.add(new EndGame(state.getPlayerId(turn)));        
+        state.setGameResult("OVER");
+        state.setWinner(turn);
       }
     }    
     return operations;

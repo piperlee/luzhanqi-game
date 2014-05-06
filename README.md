@@ -7,6 +7,7 @@ SMG project
 
 **Game URL:** 
 
+- HW12 AI: http://12-dot-luzhanqi-game.appspot.com/LuzhanqiGame.html
 - HW11 i18n: http://11-dot-luzhanqi-game.appspot.com/LuzhanqiGame.html
 - HW10 Mobile auto-scale: http://10-2-dot-luzhanqi-game.appspot.com/LuzhanqiGame.html
 - HW10 Mobile: http://10-dot-luzhanqi-game.appspot.com/LuzhanqiGame.html
@@ -15,6 +16,7 @@ SMG project
 
 **Game URL used in Emulator/Container:**
 
+- HW12 AI: http://12b-dot-luzhanqi-game.appspot.com/LuzhanqiGame.html
 - HW11 i18n: http://11b-dot-luzhanqi-game.appspot.com/LuzhanqiGame.html
 - HW10 Mobile auto-scale: http://10-2b-dot-luzhanqi-game.appspot.com/LuzhanqiGame.html
 - HW10 Mobile: http://10b-dot-luzhanqi-game.appspot.com/LuzhanqiGame.html
@@ -25,8 +27,9 @@ SMG project
 
 **Emulators URL:**
 
-- [GWT-Emulator] (http://2-dot-smg-gwt-emulator.appspot.com/GwtEmulator.html)
-- [AngularJS-Emulator] (http://4.smg-angularjs-emulator.appspot.com/)
+- GWT-Emulator: http://smg-gwt-emulator.appspot.com/GwtEmulator.html
+  - Make sure turn off "Single Player", when it is NOT AI game.
+- AngularJS-Emulator: http://4.smg-angularjs-emulator.appspot.com/
 
 **HW1-3 detailed commit history:** https://github.com/piperlee/luzhanqi
 

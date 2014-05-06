@@ -16,7 +16,7 @@
     overflow:hidden;
     width: 15px;
     height: 97px;
-  }
+  }  
     </style>
   </head>
   <body>
@@ -28,6 +28,9 @@ function scaleBody() {
   var scaleX = window.innerWidth / myGameWidth;
   var scaleY = window.innerHeight / myGameHeight;
   var scale = Math.max(scaleX, scaleY);
+  if (scale > 1.0 ) {
+    scale = 1.0;
+  }
   var transformString = "scale(" + scale + "," + scale + ")";
   document.body.style.transform = transformString;
   document.body.style['-o-transform'] = transformString;

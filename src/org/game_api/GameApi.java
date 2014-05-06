@@ -181,7 +181,7 @@ public final class GameApi {
         Object visibleToPlayers = visibleTo.get(key);
         Object value = null;
         if (visibleToPlayers.equals(ALL)
-            || ((List<Integer>) visibleToPlayers).contains(playerId)) {
+            || ((List<String>) visibleToPlayers).contains(playerId)) {
           value = state.get(key);
         }
         result.put(key, value);
@@ -532,7 +532,7 @@ public final class GameApi {
       this(key, (Object) visibleToPlayerIds);
     }
 
-    private SetVisibility(String key, Object visibleToPlayerIds) {
+    public SetVisibility(String key, Object visibleToPlayerIds) {
       this.key = key;
       this.visibleToPlayerIds = checkHasJsonSupportedType(visibleToPlayerIds);
     }
@@ -981,7 +981,7 @@ public final class GameApi {
    * or the object is a Map and the keys are String and the values have JSON-supported data types.
    * @return the given object.
    */
-  static <T> T checkHasJsonSupportedType(T object) {
+  public static <T> T checkHasJsonSupportedType(T object) {
     if (object == null) {
       return object;
     }
@@ -1015,9 +1015,6 @@ public final class GameApi {
   public static final class GameApiJsonHelper {
     private GameApiJsonHelper() { }
 
-    private static final List<String> INTEGER_MAP_NAMES = ImmutableList.<String>of(
-        "playerIdToNumberOfTokensInPot", "playerIdToTokenChange", "playerIdToScore");
-
     public static String getJsonString(Message messageObject) {
       Map<String, Object> messageMap = messageObject.toMessage();
       return getJsonStringFromMap(messageMap);
@@ -1043,11 +1040,7 @@ public final class GameApi {
         } else if (entry.getValue() instanceof List) {
           jsonVal = getJsonArray((List<Object>) entry.getValue());
         } else if (entry.getValue() instanceof Map) {
-          if (INTEGER_MAP_NAMES.contains(entry.getKey())) {
-            jsonVal = getJsonObjectFromIntegerMap((Map<String, Integer>) entry.getValue());
-          } else {
-            jsonVal = getJsonObject((Map<String, Object>) entry.getValue());
-          }
+          jsonVal = getJsonObject((Map<String, Object>) entry.getValue());
         } else {
           throw new IllegalStateException("Invalid object encountered");
         }
@@ -1116,23 +1109,10 @@ public final class GameApi {
         } else if (jsonVal instanceof JSONArray) {
           map.put(key, getListFromJsonArray((JSONArray) jsonVal));
         } else if (jsonVal instanceof JSONObject) {
-          if (INTEGER_MAP_NAMES.contains(key)) {
-            map.put(key, getIntegerMapFromJsonObject((JSONObject) jsonVal));
-          } else {
-            map.put(key, getMapFromJsonObject((JSONObject) jsonVal));
-          }
+          map.put(key, getMapFromJsonObject((JSONObject) jsonVal));
         } else {
           throw new IllegalStateException("Invalid JSONValue encountered");
         }
-      }
-      return map;
-    }
-
-    public static Map<Integer, Integer> getIntegerMapFromJsonObject(JSONObject jsonObj) {
-      Map<Integer, Integer> map = new HashMap<Integer, Integer>();
-      for (String key : jsonObj.keySet()) {
-        JSONValue jsonVal = jsonObj.get(key);
-        map.put(Integer.parseInt(key), new Integer((int) ((JSONNumber) jsonVal).doubleValue()));
       }
       return map;
     }
@@ -1162,5 +1142,4 @@ public final class GameApi {
   }
 
   private GameApi() { }
-
 }
