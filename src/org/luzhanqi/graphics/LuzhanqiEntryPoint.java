@@ -33,11 +33,11 @@ public class LuzhanqiEntryPoint implements EntryPoint {
   //End
   
   //AI
-  //AIContainer container;
+  AIContainer container;
   //End
   
   //Emulator
-  ContainerConnector container;
+  //ContainerConnector container;
   //End
   LuzhanqiPresenter luzhanqiPresenter;
   GameMessages messages = (GameMessages)GWT.create(GameMessages.class);
@@ -72,7 +72,7 @@ public class LuzhanqiEntryPoint implements EntryPoint {
     });
     
     //Emulator
-    container = new GameApi.ContainerConnector(game);
+    //container = new GameApi.ContainerConnector(game);
     //End
     
     //Game
@@ -80,7 +80,7 @@ public class LuzhanqiEntryPoint implements EntryPoint {
     //End
     
     //AI
-    //container = new AIContainer(game,1);
+    container = new AIContainer(game,1);
     //End
     
     LuzhanqiGraphics luzhanqiGraphics = new LuzhanqiGraphics();
@@ -111,28 +111,28 @@ public class LuzhanqiEntryPoint implements EntryPoint {
     //End
     
     //AI
-//    final ListBox playerSelect = new ListBox();
-//    playerSelect.addItem(messages.blackPlayer());   
-//    playerSelect.addItem(messages.viewer());
-//  
-//    playerSelect.setSelectedIndex(0);
-//    playerSelect.addChangeHandler(new ChangeHandler() {
-//      @Override
-//      public void onChange(ChangeEvent event) {
-//        int selectedIndex = playerSelect.getSelectedIndex();
-//        String playerId = selectedIndex == 1 ? GameApi.VIEWER_ID
-//            : container.getPlayerIds().get(0);
-//        container.updateUi(playerId);
-//      }
-//    });
-//    FlowPanel flowPanel = new FlowPanel();
-//    flowPanel.add(playerSelect);
-//    flowPanel.add(luzhanqiGraphics);    
-//    RootPanel.get("mainDiv").add(flowPanel);
+    final ListBox playerSelect = new ListBox();
+    playerSelect.addItem(messages.blackPlayer());   
+    playerSelect.addItem(messages.viewer());
+  
+    playerSelect.setSelectedIndex(0);
+    playerSelect.addChangeHandler(new ChangeHandler() {
+      @Override
+      public void onChange(ChangeEvent event) {
+        int selectedIndex = playerSelect.getSelectedIndex();
+        String playerId = selectedIndex == 1 ? GameApi.VIEWER_ID
+            : container.getPlayerIds().get(0);
+        container.updateUi(playerId);
+      }
+    });
+    FlowPanel flowPanel = new FlowPanel();
+    flowPanel.add(playerSelect);
+    flowPanel.add(luzhanqiGraphics);    
+    RootPanel.get("mainDiv").add(flowPanel);
     //End
     
     //Emulator
-    RootPanel.get("mainDiv").add(luzhanqiGraphics);
+    //RootPanel.get("mainDiv").add(luzhanqiGraphics);
     //End
     
     container.sendGameReady();
@@ -144,7 +144,7 @@ public class LuzhanqiEntryPoint implements EntryPoint {
     
     //AI
     //black start
-    //container.updateUi(container.getPlayerIds().get(0));
+    container.updateUi(container.getPlayerIds().get(0));
     //End
     scaleGame();
   }

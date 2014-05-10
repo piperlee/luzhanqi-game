@@ -245,7 +245,12 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
                 }
               }
               if (presenter.isSTurn() && selectedPiece!=null
-                  && !presenter.deployValid(selectedPiece.getKey(), slotKey)) {
+                  && (!presenter.deployValid(selectedPiece.getKey(), slotKey)
+                      || presenter.deployMap.containsKey(selectedPiece))) {
+                isDrag = false;
+                throw new VetoDragException();
+              }
+              if (presenter.isSTurn() && selectedPiece == null) {
                 isDrag = false;
                 throw new VetoDragException();
               }
@@ -324,10 +329,12 @@ public class LuzhanqiGraphics extends Composite implements LuzhanqiPresenter.Vie
             && presenter.getState().getDW().isPresent()
             && presenter.isAIGame())) {
           if (selectedPiece == null || selectedPieceImage == image) {
-            int pieceKey = getKeyFromDeployPanels(image,presenter.getTurn());
-            selectedPiece = new Piece(pieceKey,-1);
-            selectedPieceImage = image;
-            image.setStyleName(css.highlighted());
+            if (!gameGrid.equals(image.getParent().getParent())) {
+              int pieceKey = getKeyFromDeployPanels(image,presenter.getTurn());
+              selectedPiece = new Piece(pieceKey,-1);
+              selectedPieceImage = image;
+              image.setStyleName(css.highlighted());
+            }
           }
         } 
         //normal move

@@ -173,6 +173,9 @@ public class LuzhanqiPresenter {
         turnOfColor = pId.equals(sId) ? Turn.S : Turn.values()[playerIds.indexOf(pId)];
       }
     }
+    if (updateUI.getState().containsKey("DW") && !updateUI.getState().containsKey("DB")) {
+      turnOfColor = Turn.S;
+    }
     deployMap = new HashMap<Piece,Slot>();
     fromTo = new ArrayList<Slot>();
     lastDeploy = new HashMap<Piece,Optional<Slot>>();
@@ -587,7 +590,7 @@ public class LuzhanqiPresenter {
 //        luzhanqiState, getDeployList(deployMap), playerIds, playerIds.get(0)));
     
     //TODO AI
-//    updateUIAI();
-//    updateUIPlayer();
+    updateUIAI();
+    updateUIPlayer();
   }
 }
