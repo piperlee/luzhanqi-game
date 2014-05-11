@@ -8,13 +8,10 @@ import com.google.common.collect.ImmutableList;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Representation of the luzhanqi game state.
- * The game state uses these keys: BOARD: {pieceIdx...}//0-49, empty: -1
- *                                 B: black pieces on board, 
- *                                 W: white pieces on board,
- *                                 D: discarded pieces
- *                                 MOVE: {from, to} //slotIdx
- *                                 DEPLOY: DEPLOY
+ * Representation of the luzhanqi game state. The game state uses these keys:
+ * BOARD: {pieceIdx...}//0-49, empty: -1 B: black pieces on board, W: white
+ * pieces on board, D: discarded pieces MOVE: {from, to} //slotIdx DEPLOY:
+ * DEPLOY
  **/
 
 public class LuzhanqiState {
@@ -22,14 +19,15 @@ public class LuzhanqiState {
   private final ImmutableList<String> playerIds;
 
   /**
-   * Note that some of the entries will have null, meaning the card is not visible to us.
+   * Note that some of the entries will have null, meaning the card is not
+   * visible to us.
    */
   private ImmutableList<Slot> board;
 
   /**
-   * Index of the white pieces, each integer is in the range [0-24].
-   * Index of the black pieces, each integer is in the range [25-49].
-   * Index of the discard pieces, each integer is in the range [0-49].
+   * Index of the white pieces, each integer is in the range [0-24]. Index of
+   * the black pieces, each integer is in the range [25-49]. Index of the
+   * discard pieces, each integer is in the range [0-49].
    */
   private final ImmutableList<Integer> white;
   private final ImmutableList<Integer> black;
@@ -40,7 +38,7 @@ public class LuzhanqiState {
   private final boolean isDeploy;
   private String gameResult;
   private Turn winner;
- 
+
   public LuzhanqiState(Turn turn, ImmutableList<String> playerIds,
       ImmutableList<Slot> board, ImmutableList<Integer> white,
       ImmutableList<Integer> black, ImmutableList<Integer> discard,
@@ -60,13 +58,13 @@ public class LuzhanqiState {
     this.gameResult = null;
     this.winner = null;
   }
-  
+
   public LuzhanqiState(Turn turn, ImmutableList<String> playerIds,
       ImmutableList<Slot> board, ImmutableList<Integer> white,
       ImmutableList<Integer> black, ImmutableList<Integer> discard,
       Optional<List<Integer>> dw, Optional<List<Integer>> db,
-      Optional<List<Integer>> move, boolean isDeploy, 
-      String gameResult, Turn winner) {
+      Optional<List<Integer>> move, boolean isDeploy, String gameResult,
+      Turn winner) {
     super();
     this.turn = checkNotNull(turn);
     this.playerIds = checkNotNull(playerIds);
@@ -85,21 +83,21 @@ public class LuzhanqiState {
   public Turn getTurn() {
     return turn;
   }
-  
-  public ImmutableList<Slot> getBoard(){
+
+  public ImmutableList<Slot> getBoard() {
     return board;
   }
-  
-  public void setBoard (ImmutableList<Slot> board) {
+
+  public void setBoard(ImmutableList<Slot> board) {
     this.board = board;
   }
-  
-  public List<Integer> getApiBoard(){
+
+  public List<Integer> getApiBoard() {
     List<Integer> apiBoard = new ArrayList<Integer>();
-    for(Slot s: board){
-      if(s.getPiece() == null){
+    for (Slot s : board) {
+      if (s.getPiece() == null) {
         apiBoard.add(-1);
-      }else{
+      } else {
         apiBoard.add(s.getPiece().getKey());
       }
     }
@@ -125,18 +123,19 @@ public class LuzhanqiState {
   public Optional<List<Integer>> getDW() {
     return dw;
   }
-  
+
   public Optional<List<Integer>> getDB() {
     return db;
   }
-  
-  public boolean boardEmpty(){
-    for(Slot slot: board){
-      if (!slot.emptySlot()) return false;
+
+  public boolean boardEmpty() {
+    for (Slot slot : board) {
+      if (!slot.emptySlot())
+        return false;
     }
     return true;
   }
-  
+
   public ImmutableList<Integer> getWhiteOrBlack(Turn turn) {
     return turn.isWhite() ? white : black;
   }
@@ -144,47 +143,51 @@ public class LuzhanqiState {
   public ImmutableList<Integer> getDiscard() {
     return discard;
   }
-  
-  public Optional<List<Integer>> getMove(){
+
+  public Optional<List<Integer>> getMove() {
     return move;
   }
-  
-  public void setMove(Optional<List<Integer>> move){
+
+  public void setMove(Optional<List<Integer>> move) {
     this.move = move;
   }
-  
-  public boolean getIsDeploy(){
+
+  public boolean getIsDeploy() {
     return isDeploy;
   }
-  
+
   public String getGameResult() {
     return this.gameResult;
   }
-  
+
   public void setGameResult(String gameResult) {
     this.gameResult = gameResult;
   }
-  
+
   public Turn getWinner() {
     return this.winner;
   }
-  
+
   public void setWinner(Turn turn) {
     this.winner = turn;
   }
-  
+
   public LuzhanqiState copy() {
     List<Slot> newBoard = new ArrayList<Slot>();
-    for (Slot slot:board) {
+    for (Slot slot : board) {
       Slot newSlot = new Slot(slot.getKey(), slot.getPieceKey());
       newBoard.add(newSlot);
     }
-    return new LuzhanqiState(turn, 
-        ImmutableList.copyOf(playerIds), 
-        ImmutableList.copyOf(newBoard), 
-        white, black, discard,
-        dw, db, 
-        Optional.fromNullable((List<Integer>)ImmutableList.copyOf(move.get())), 
+    return new LuzhanqiState(
+        turn,
+        ImmutableList.copyOf(playerIds),
+        ImmutableList.copyOf(newBoard),
+        white,
+        black,
+        discard,
+        dw,
+        db,
+        Optional.fromNullable((List<Integer>) ImmutableList.copyOf(move.get())),
         isDeploy, gameResult, winner);
   }
 }

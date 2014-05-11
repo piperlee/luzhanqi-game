@@ -4,50 +4,54 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="gwt:property" content="locale=en">
-    <title>Luzhanqi game</title>
-    <script type="text/javascript" language="javascript" src="luzhanqi_game/luzhanqi_game.nocache.js"></script>
-    <style>
-  .imgContainer {
-    overflow:hidden;
-    width: 73px;
-    height: 97px;
-  }
-  .imgShortContainer {
-    overflow:hidden;
-    width: 15px;
-    height: 97px;
-  }  
-    </style>
+  <title>Luzhanqi game</title>
+  <script type="text/javascript" language="javascript" src="luzhanqi_game/luzhanqi_game.nocache.js"></script>
+  <style>
+		.imgContainer {
+			overflow: hidden;
+			width: 73px;
+			height: 97px;
+		}
+
+		.imgShortContainer {
+			overflow: hidden;
+			width: 15px;
+			height: 97px;
+		}
+  </style>
   </head>
   <body>
-    <div id="mainDiv"></div>
-    <script>
-function scaleBody() {
-  var myGameWidth = 460;
-  var myGameHeight = 920;
-  var scaleX = window.innerWidth / myGameWidth;
-  var scaleY = window.innerHeight / myGameHeight;
-  var scale = Math.max(scaleX, scaleY);
-  if (scale > 1.0 ) {
-    scale = 1.0;
-  }
-  var transformString = "scale(" + scale + "," + scale + ")";
-  document.body.style.transform = transformString;
-  document.body.style['-o-transform'] = transformString;
-  document.body.style['-webkit-transform'] = transformString;
-  document.body.style['-moz-transform'] = transformString;
-  document.body.style['-ms-transform'] = transformString;
-  var transformOriginString = "0 0 0";
-  document.body.style['transform-origin'] = transformOriginString;
-  document.body.style['-o-transform-origin'] = transformOriginString;
-  document.body.style['-webkit-transform-origin'] = transformOriginString;
-  document.body.style['-moz-transform-origin'] = transformOriginString;
-  document.body.style['-ms-transform-origin'] = transformOriginString;
-}
-window.onresize = scaleBody;
-window.onorientationchange = scaleBody;
-document.addEventListener("orientationchange", scaleBody);
-scaleBody();
-</script>
+	 <div id="mainDiv"></div>
+	 <script>
+
+		var WIDTH;
+		var HEIGHT;
+		function setWidthHeight(myGameWidth, myGameHeight) {
+		  WIDTH = myGameWidth;
+		  HEIGHT = myGameHeight;
+		}
+		function scaleBody() {
+		  var scaleX = window.innerWidth / WIDTH;
+		  var scaleY = window.innerHeight / HEIGHT;
+		  var scale = Math.min(scaleX, scaleY);
+		  var transformString = "scale(" + scale + "," + scale + ")";
+		  document.body.style.transform = transformString;
+		  document.body.style['-o-transform'] = transformString;
+		  document.body.style['-webkit-transform'] = transformString;
+		  document.body.style['-moz-transform'] = transformString;
+		  document.body.style['-ms-transform'] = transformString;
+		  var transformOriginString = "0 0 0";
+		  document.body.style['transform-origin'] = transformOriginString;
+		  document.body.style['-o-transform-origin'] = transformOriginString;
+		  document.body.style['-webkit-transform-origin'] = transformOriginString;
+		  document.body.style['-moz-transform-origin'] = transformOriginString;
+		  document.body.style['-ms-transform-origin'] = transformOriginString;
+		}
+		window.onresize = scaleBody;
+		window.onorientationchange = scaleBody;
+		document.addEventListener("orientationchange", scaleBody);
+		setWidthHeight(460,940);
+		scaleBody();
+    </script>
   </body>
 </html>

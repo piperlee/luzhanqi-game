@@ -23,7 +23,7 @@
   <g:AbsolutePanel ui:field="abPanel" >
     <g:HorizontalPanel>
        <g:Label ui:field="curTurn" />
-       <g:Button ui:field="moveBtn" />
+       <!--  <g:Button ui:field="moveBtn" /> -->
        <g:Button ui:field="deployBtn" />        
        <!-- test button -->
        <g:Button ui:field="quickDeploy" />

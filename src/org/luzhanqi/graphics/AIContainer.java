@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 /**
- * A container for games that can iterates over all the players and send them Game API messages.
+ * A container for games that use for AI and send them Game API messages.
  */
 public class AIContainer implements Container{
   public static final String PLAYER_ID = "playerId";

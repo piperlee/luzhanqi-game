@@ -1,12 +1,11 @@
 package org.luzhanqi.client;
 
-// Modified code from: 
-
 import java.util.List;
 
-
 /**
+ * Credit to https://code.google.com/p/nyu-gaming-course-2013/source/browse/trunk/eclipse/src/org/ashishmanral/hw9/MoveScore.java
  * This is a wrapper class that wraps move and score together.
+ * @author Ashish
  */
 class MoveScore implements Comparable<MoveScore> {
 

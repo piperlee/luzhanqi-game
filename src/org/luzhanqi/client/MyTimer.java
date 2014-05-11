@@ -1,14 +1,13 @@
 package org.luzhanqi.client;
 
-//
-
 import java.util.Date;
 
-/**
- * Timer.java 
+/** 
+ * Credit to : https://code.google.com/p/nyu-gaming-course-2013/source/browse/trunk/eclipse/src/org/ashishmanral/hw9/Timer.java
  * @author Ashish
  * This class checks if a timeout has occurred. 
  */
+
 public class MyTimer {
 
     private long start;

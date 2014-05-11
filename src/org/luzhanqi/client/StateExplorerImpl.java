@@ -1,5 +1,10 @@
 package org.luzhanqi.client;
 
+/*
+ * Implement Interface from
+ * https://code.google.com/p/nyu-gaming-course-2013/source/browse/trunk/eclipse/src/org/shared/chess/StateExplorer.java
+ */
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -80,7 +85,7 @@ public class StateExplorerImpl implements StateExplorer {
       
       // on rail
       if (from.getOnRail() && to.getOnRail() && to.emptySlot()) {
-        //TODO
+        
       }
     }
     return possibleMove;

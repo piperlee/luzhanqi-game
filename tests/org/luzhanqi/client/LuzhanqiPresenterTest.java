@@ -67,18 +67,16 @@ public class LuzhanqiPresenterTest {
   private static final String DW = "DW";
   private static final String DB= "DB";
   private final String viewerId = GameApi.VIEWER_ID;
-  private final String sId = "1"; //dummy
+//  private final String sId = "1"; //dummy
   private final String wId = "41";
   private final String bId = "42";
-  private final ImmutableList<String> playerIds = ImmutableList.of(wId, bId, sId);
+  private final ImmutableList<String> playerIds = ImmutableList.of(wId, bId);
   private final ImmutableMap<String, Object> wInfo =
       ImmutableMap.<String, Object>of(PLAYER_ID, wId);
   private final ImmutableMap<String, Object> bInfo =
       ImmutableMap.<String, Object>of(PLAYER_ID, bId);
-  private final ImmutableMap<String, Object> sInfo =
-      ImmutableMap.<String, Object>of(PLAYER_ID, sId);
   private final ImmutableList<Map<String, Object>> playersInfo =
-      ImmutableList.<Map<String, Object>>of(wInfo, bInfo, sInfo);
+      ImmutableList.<Map<String, Object>>of(wInfo, bInfo);
 
   private final List<Piece> allPieces = genPiecesList();
   private final List<Slot> allSlots = genSlotsList();
@@ -232,38 +230,38 @@ public class LuzhanqiPresenterTest {
   //Deploy tests
   @Test
   public void testDeployForWTurnOfS() {
-    luzhanqiPresenter.updateUI(createUpdateUI(wId, sId, initialState));
+    luzhanqiPresenter.updateUI(createUpdateUI(wId, bId, initialState));
     verify(mockView).setPlayerState(25, 0, 
-        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
+        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.W, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
     verify(mockView).deployNextPiece(ImmutableMap.<Piece,Optional<Slot>>of());
   }
   
   @Test
   public void testDeployForBTurnOfS() {
-    luzhanqiPresenter.updateUI(createUpdateUI(bId, sId, initialState));
+    luzhanqiPresenter.updateUI(createUpdateUI(bId, wId, initialState));
     verify(mockView).setPlayerState(25, 0, 
-        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
+        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.B, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
     verify(mockView).deployNextPiece(ImmutableMap.<Piece,Optional<Slot>>of());
   }
 
   @Test
   public void testDeployForViewerTurnOfS() {
-    luzhanqiPresenter.updateUI(createUpdateUI(viewerId, sId, initialState));
+    luzhanqiPresenter.updateUI(createUpdateUI(viewerId, bId, initialState));
     verify(mockView).setViewerState(25, 25, 0, 
-        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
+        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.B, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
   }
   
   @Test
   public void testDeployPieceForWTurnOfS() {
-    UpdateUI updateUI = createUpdateUI(wId, sId, initialState);
+    UpdateUI updateUI = createUpdateUI(wId, wId, initialState);
     luzhanqiPresenter.updateUI(updateUI);
     luzhanqiPresenter.pieceDeploy(allPieces.get(24), allSlots.get(1));
     
     verify(mockView).setPlayerState(25, 0, 
-        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
+        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.W, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
     verify(mockView).deployNextPiece(ImmutableMap.<Piece,Optional<Slot>>of());
     Map<Piece,Optional<Slot>> lastDeploy = Maps.newHashMap();
@@ -274,13 +272,13 @@ public class LuzhanqiPresenterTest {
   
   @Test
   public void testDeployPiecesForWTurnOfS() {
-    UpdateUI updateUI = createUpdateUI(wId, sId, initialState);
+    UpdateUI updateUI = createUpdateUI(wId, wId, initialState);
     luzhanqiPresenter.updateUI(updateUI);
     luzhanqiPresenter.pieceDeploy(allPieces.get(24), allSlots.get(1));
     luzhanqiPresenter.pieceDeploy(allPieces.get(24), allSlots.get(3));
     
     verify(mockView).setPlayerState(25, 0, 
-        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
+        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.W, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
     verify(mockView).deployNextPiece(ImmutableMap.<Piece,Optional<Slot>>of());
     Map<Piece,Optional<Slot>> lastDeploy = Maps.newHashMap();
@@ -293,12 +291,12 @@ public class LuzhanqiPresenterTest {
   
   @Test
   public void testDeployPieceForBTurnOfS() {
-    UpdateUI updateUI = createUpdateUI(bId, sId, initialState);
+    UpdateUI updateUI = createUpdateUI(bId, bId, initialState);
     luzhanqiPresenter.updateUI(updateUI);
     luzhanqiPresenter.pieceDeploy(allPieces.get(33), allSlots.get(45));
     
     verify(mockView).setPlayerState(25, 0, 
-        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
+        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.B, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
     verify(mockView).deployNextPiece(ImmutableMap.<Piece,Optional<Slot>>of());
     Map<Piece,Optional<Slot>> lastDeploy = Maps.newHashMap();
@@ -309,13 +307,13 @@ public class LuzhanqiPresenterTest {
   
   @Test
   public void testDeployPiecesForBTurnOfS() {
-    UpdateUI updateUI = createUpdateUI(bId, sId, initialState);
+    UpdateUI updateUI = createUpdateUI(bId, bId, initialState);
     luzhanqiPresenter.updateUI(updateUI);
     luzhanqiPresenter.pieceDeploy(allPieces.get(33), allSlots.get(45));
     luzhanqiPresenter.pieceDeploy(allPieces.get(47), allSlots.get(51));
     
     verify(mockView).setPlayerState(25, 0, 
-        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
+        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.B, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
     verify(mockView).deployNextPiece(ImmutableMap.<Piece,Optional<Slot>>of());
     Map<Piece,Optional<Slot>> lastDeploy = Maps.newHashMap();
@@ -328,15 +326,15 @@ public class LuzhanqiPresenterTest {
   
   @Test
   public void testDeployPiecesForViewerTurnOfS() {
-    luzhanqiPresenter.updateUI(createUpdateUI(viewerId, sId, initialState));
+    luzhanqiPresenter.updateUI(createUpdateUI(viewerId, bId, initialState));
     verify(mockView).setViewerState(25, 25, 0, 
-        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
+        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.B, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
   }
   
   @Test
   public void testFinishDeployForWTurnOfS() {
-    UpdateUI updateUI = createUpdateUI(wId, sId, initialState);
+    UpdateUI updateUI = createUpdateUI(wId, wId, initialState);
     LuzhanqiState luzhanqiState =
         luzhanqiLogic.gameApiStateToLuzhanqiState(updateUI.getState(), Turn.W, playerIds);
     luzhanqiPresenter.updateUI(updateUI);
@@ -348,7 +346,7 @@ public class LuzhanqiPresenterTest {
     luzhanqiPresenter.finishedDeployingPieces();
     
     verify(mockView).setPlayerState(25, 0, 
-        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
+        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.W, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
     verify(mockView).deployNextPiece(ImmutableMap.<Piece,Optional<Slot>>of());
     Map<Piece,Slot> deployMap = Maps.newHashMap();
@@ -367,7 +365,7 @@ public class LuzhanqiPresenterTest {
   
   @Test
   public void testFinishDeployForBTurnOfS() {
-    UpdateUI updateUI = createUpdateUI(bId, sId, initialState);
+    UpdateUI updateUI = createUpdateUI(bId, bId, initialState);
     LuzhanqiState luzhanqiState =
         luzhanqiLogic.gameApiStateToLuzhanqiState(updateUI.getState(), Turn.B, playerIds);
     luzhanqiPresenter.updateUI(updateUI);
@@ -379,7 +377,7 @@ public class LuzhanqiPresenterTest {
     luzhanqiPresenter.finishedDeployingPieces();
     
     verify(mockView).setPlayerState(25, 0, 
-        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
+        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.B, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
     verify(mockView).deployNextPiece(ImmutableMap.<Piece,Optional<Slot>>of());
     Map<Piece,Slot> deployMap = Maps.newHashMap();
@@ -398,9 +396,9 @@ public class LuzhanqiPresenterTest {
   
   @Test
   public void testFinishDeployForViewerTurnOfS() {
-    luzhanqiPresenter.updateUI(createUpdateUI(viewerId, sId, initialState));
+    luzhanqiPresenter.updateUI(createUpdateUI(viewerId, bId, initialState));
     verify(mockView).setViewerState(25, 25, 0, 
-        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.S, playerIds).getBoard(), 
+        luzhanqiLogic.gameApiStateToLuzhanqiState(initialState, Turn.B, playerIds).getBoard(), 
         LuzhanqiMessage.IS_DEPLOY);
   }
   

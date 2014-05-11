@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ChosenMove.java  
+ * Credit to: https://code.google.com/p/nyu-gaming-course-2013/source/browse/trunk/eclipse/src/org/ashishmanral/hw9/ChosenMove.java  
  * @author Ashish
  * This class picks one of the moves with highest same scores.
  */
+
 public class ChosenMove {
   
   private List<MoveScore> moveScore=new ArrayList<MoveScore>();

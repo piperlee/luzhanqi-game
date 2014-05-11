@@ -9,7 +9,7 @@ public interface GameSounds extends ClientBundle {
 
   @Source("sounds/pieceCaptured.wav")
   DataResource pieceCapturedWav();
-  
+
   @Source("sounds/pieceCaptured.ogg")
   DataResource pieceCapturedOgg();
 
@@ -18,7 +18,7 @@ public interface GameSounds extends ClientBundle {
 
   @Source("sounds/pieceDown.wav")
   DataResource pieceDownWav();
-  
+
   @Source("sounds/pieceDown.ogg")
   DataResource pieceDownOgg();
 }
