@@ -493,6 +493,8 @@ public class LuzhanqiGraphics extends Composite implements
       int numberOfDicardPieces, List<Slot> board,
       LuzhanqiMessage luzhanqiMessage) {
 
+    GameSetting.isDeploy = (luzhanqiMessage == LuzhanqiMessage.IS_DEPLOY);
+    GameSetting.scaleGame();
     scaleFun(GameSetting.getWidth(),GameSetting.getHeight());
     if (presenter.getIsEndGame()) {
       gameOver.setText(messages.gameEnd());
@@ -521,6 +523,8 @@ public class LuzhanqiGraphics extends Composite implements
       int numberOfDiscardPieces, List<Slot> board,
       LuzhanqiMessage luzhanqiMessage) {
     disableClicks();
+    GameSetting.isDeploy = (luzhanqiMessage == LuzhanqiMessage.IS_DEPLOY);
+    GameSetting.scaleGame();
     scaleFun(GameSetting.getWidth(),GameSetting.getHeight());
     if (presenter.getIsEndGame()) {
       gameOver.setText(messages.gameEnd());
@@ -565,6 +569,7 @@ public class LuzhanqiGraphics extends Composite implements
       }
     } else if (luzhanqiMessage == LuzhanqiMessage.FIRST_MOVE) {
       quickDeploy.setEnabled(false);
+      clearDeployPanels();
       setGamePanelsByBoard(board, presenter.getTurn());
 
     } else if (luzhanqiMessage == LuzhanqiMessage.NORMAL_MOVE) {

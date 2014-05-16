@@ -62,12 +62,14 @@ public class LuzhanqiEntryPoint implements EntryPoint {
       @Override
       public void onResize(ResizeEvent event) {
         GameSetting.scaleGame();
+        scaleFun(GameSetting.getWidth(),GameSetting.getHeight());
       }
     });
     MGWT.addOrientationChangeHandler(new OrientationChangeHandler() {
       @Override
       public void onOrientationChanged(OrientationChangeEvent event) {
         GameSetting.scaleGame();
+        scaleFun(GameSetting.getWidth(),GameSetting.getHeight());
       }
     });
     
@@ -148,5 +150,10 @@ public class LuzhanqiEntryPoint implements EntryPoint {
     //End
     GameSetting.scaleGame();
   }
+  
+  public final native void scaleFun(int width, int height) /*-{
+    $wnd.setWidthHeight(width, height);
+    $wnd.scaleBody();
+  }-*/;
 } 
 
